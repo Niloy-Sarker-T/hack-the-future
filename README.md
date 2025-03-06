@@ -6,6 +6,7 @@ hack-the-future is a **full-stack** platform designed to simplify the organizati
 
 ## Key Features
 
+- **Authentication**: Users can register and log in to access the platform.
 - **Event Management**: Create, manage, and track hackathons or innovation challenges.
 - **Team Formation**: AI-powered suggestions for forming balanced teams.
 - **Submission & Judging**: Easy project submission and scoring system for judges.
