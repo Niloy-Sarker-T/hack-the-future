@@ -29,6 +29,7 @@ let envSchema = z.object({
   REFRESH_TOKEN_EXPIRY: z.string().nonempty(),
   ACCESS_TOKEN_SECRET: z.string().nonempty(),
   ACCESS_TOKEN_EXPIRY: z.string().nonempty(),
+  DATABASE_URL: z.string().nonempty(),
 });
 
 // Helper function to validate URLs

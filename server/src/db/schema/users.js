@@ -6,12 +6,11 @@ import {
   timestamp,
   boolean,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 // Enum for user roles
 /**
  * @readonly
- * @enum {string}
+ * @enum {"USER" | "ORGANIZER"}
  */
 export const UserRole = {
   USER: "USER",
@@ -19,33 +18,21 @@ export const UserRole = {
 };
 
 // Users table
-export const users = pgTable(
-  "users",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    email: varchar("email", { length: 255 }).notNull().unique(),
-    fullName: varchar("full_name", { length: 255 }).notNull(),
-    userName: varchar("user_name", { length: 255 }).unique(),
-    password: text("password").notNull(),
-    role: varchar("role", { length: 255 })
-      .default(UserRole.USER)
-      .notNull()
-      .check(sql`role IN ('USER', 'ORGANIZER')`),
-    createdAt: timestamp("created_at", { withTimezone: false })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: false })
-      .defaultNow()
-      .notNull(),
-    isVerified: boolean("is_verified").notNull(),
-  },
-  (table) => {
-    return {
-      emailIndex: index("email_idx").on(table.email), // Index on email
-      usernameIndex: index("username_idx").on(table.userName), // Index on username
-    };
-  }
-);
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  userName: varchar("user_name", { length: 255 }).unique(),
+  password: text("password").notNull(),
+  role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+  isVerified: boolean("is_verified").notNull(),
+});
 
 // User profiles table
 export const userProfiles = pgTable("user_profiles", {
