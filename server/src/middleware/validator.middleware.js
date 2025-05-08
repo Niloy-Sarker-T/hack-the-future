@@ -11,7 +11,7 @@ import { ApiError } from "../utils/api-error";
  *
  * @returns {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => void}
  */
-const validate = (schema) => (req, res, next) => {
+export const validate = (schema) => (req, res, next) => {
   const validation = schema.safeParse(req.body);
 
   return validation.success

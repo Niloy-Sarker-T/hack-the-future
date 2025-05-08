@@ -18,13 +18,13 @@ export const UserRole = {
 };
 
 // Users table
-export const users = pgTable("users", {
+export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
-  userName: varchar("user_name", { length: 255 }).unique(),
+  // userName: varchar("user_name", { length: 255 }).unique(),
   password: text("password").notNull(),
-  role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
+  // role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
     .defaultNow()
     .notNull(),
@@ -32,13 +32,15 @@ export const users = pgTable("users", {
     .defaultNow()
     .notNull(),
   isVerified: boolean("is_verified").notNull(),
+  code: text("code").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: false }).notNull(),
 });
 
 // User profiles table
-export const userProfiles = pgTable("user_profiles", {
+export const userProfilesTable = pgTable("user_profiles", {
   userId: uuid("userId")
     .primaryKey()
-    .references(() => users.id),
+    .references(() => usersTable.id),
   avatarUrl: text("avatar_url").notNull(),
   bio: text("bio").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
@@ -47,15 +49,6 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at", { withTimezone: false })
     .notNull()
     .defaultNow(),
-});
-
-// User verifications table
-export const userVerifications = pgTable("user_verifications", {
-  userId: uuid("userId")
-    .primaryKey()
-    .references(() => users.id),
-  code: text("code").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: false }).notNull(),
 });
 
 /**
@@ -69,6 +62,8 @@ export const userVerifications = pgTable("user_verifications", {
  * @property {Date} createdAt
  * @property {Date} updatedAt
  * @property {boolean} isVerified
+ * @property {string} code
+ * @property {Date} expiresAt
  */
 
 /**
@@ -96,11 +91,4 @@ export const userVerifications = pgTable("user_verifications", {
  * @property {string} userId
  * @property {string} avatarUrl
  * @property {string} bio
- */
-
-/**
- * @typedef {Object} UserVerification
- * @property {string} userId
- * @property {string} code
- * @property {Date} expiresAt
  */

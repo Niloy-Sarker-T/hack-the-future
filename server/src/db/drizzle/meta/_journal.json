@@ -8,6 +8,13 @@
       "when": 1742921408490,
       "tag": "0000_big_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1746700821434,
+      "tag": "0001_massive_barracuda",
+      "breakpoints": true
     }
   ]
 }
