@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/api-error";
+import { ApiError } from "../utils/api-error.js";
 
 /**
  * A middleware function that validates the request body against the given schema.

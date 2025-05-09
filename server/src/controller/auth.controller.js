@@ -1,4 +1,4 @@
-import { asyncHandler } from "../utils/async-handler";
+import { asyncHandler } from "../utils/async-handler.js";
 import { ApiResponse } from "../utils/api-response.js";
 import bcrypt from "bcryptjs";
 import { db } from "../db/db.config.js";
@@ -36,8 +36,7 @@ const register = asyncHandler(async (req, res) => {
     await db
       .update(usersTable)
       .set({
-        firstName,
-        lastName,
+        fullName: `${firstName} ${lastName}`,
         password: hashedPassword,
         verifyCode,
         verifyCodeExpiry,
@@ -61,15 +60,19 @@ const register = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, "User details updated. Please verify your email.")
+        new ApiResponse(
+          200,
+          { firstName, lastName, email },
+          "User details updated. Please verify your email."
+        )
       );
   }
   const newUser = {
     fullName: `${firstName} ${lastName}`,
     email,
     password: hashedPassword,
-    verifyCode,
-    verifyCodeExpiry,
+    code: verifyCode,
+    expiresAt: verifyCodeExpiry,
     isVerified: false,
   };
   await db.insert(usersTable).values(newUser);
@@ -78,7 +81,13 @@ const register = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, {}, "User registered successfully"));
+    .json(
+      new ApiResponse(
+        201,
+        { firstName, lastName, email },
+        "User registered successfully"
+      )
+    );
 });
 
 const login = asyncHandler(async (req, res) => {
