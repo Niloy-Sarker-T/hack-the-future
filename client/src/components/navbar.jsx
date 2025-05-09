@@ -48,15 +48,19 @@ export default function Navbar() {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button
-            variant="outline"
-            className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white"
-          >
-            Log In
-          </Button>
-          <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
-            Register
-          </Button>
+          <Link to="/login">
+            <Button
+              variant="outline"
+              className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white"
+            >
+              Log In
+            </Button>
+          </Link>
+          <Link to="/register">
+            <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
+              Register
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}

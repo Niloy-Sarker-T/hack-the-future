@@ -46,9 +46,11 @@ app.use(cookieParser());
 // * api routes
 import { errorHandler } from "./middleware/error.middleware.js";
 import healthcheckRouter from "./route/healthcheck.route.js";
+import authRouter from "./route/auth.route.js";
 
 // * healthcheck
-app.use("/api/v1/healthcheck", healthcheckRouter);
+app.use("/api/healthcheck", healthcheckRouter);
+app.use("/api/auth", authRouter);
 
 // * API DOCS
 // ? Keeping swagger code at the end so that we can load swagger on "/" route
