@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { Github } from "lucide-react";
 import axiosInstance from "@/lib/axios-setup";
+import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -86,12 +87,24 @@ export default function LoginPage() {
         password: formData.password,
       }); // Use axiosInstance for API call
 
-      toast(res.data.message);
+      toast(res.data.message, {
+        type: "success",
+        richColors: true,
+        closeButton: true,
+      });
 
       console.log("Login success:", res.data);
       navigate("/");
     } catch (err) {
       console.log(err);
+
+      if (axios.isAxiosError(err)) {
+        toast(err.response.data?.message, {
+          type: "error",
+          richColors: true,
+          closeButton: true,
+        });
+      }
 
       setErrors((prev) => ({
         ...prev,

@@ -81,10 +81,29 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await axiosInstance.post("/api/auth/register", formData); // Use axiosInstance for API call
-      toast(`Registration with ${formData.email} is successful.`);
+      const res = await axiosInstance.post("/api/auth/register", formData); // Use axiosInstance for API call
+      if (res.status === 201) {
+        toast(`Registration with ${formData.email} is successful.`, {
+          type: "success",
+          richColors: true,
+          closeButton: true,
+        });
+      }
+      if (res.status === 200) {
+        toast(`Registration is complete`, {
+          type: "info",
+          richColors: true,
+          closeButton: true,
+          description: "Please verify your email.",
+        });
+      }
     } catch (error) {
       console.error("Registration failed", error);
+      toast(`Registration with ${formData.email} is successful.`, {
+        type: "error",
+        richColors: true,
+        closeButton: true,
+      });
     } finally {
       setIsLoading(false);
     }
