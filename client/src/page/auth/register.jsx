@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "@/lib/axios-setup";
 import { toast } from "sonner";
 
@@ -31,6 +31,8 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -97,6 +99,7 @@ export default function RegisterPage() {
           description: "Please verify your email.",
         });
       }
+      navigate("/login");
     } catch (error) {
       console.error("Registration failed", error);
       toast(`Registration with ${formData.email} is successful.`, {

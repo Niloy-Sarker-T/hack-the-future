@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
+import useAuthStore from "@/store/authStore";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 bg-[#121212]/80 backdrop-blur-md border-b border-[#2A2A2A]">
@@ -48,19 +51,54 @@ export default function Navbar() {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center space-x-4">
-          <Link to="/login">
-            <Button
-              variant="outline"
-              className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white"
-            >
-              Log In
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
-              Register
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <div className="flex items-center space-x-3 mr-2">
+                <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
+                  {user.avatarUrl === "avatar" ? (
+                    <User size={18} />
+                  ) : (
+                    <img
+                      src={user?.avatarUrl}
+                      alt="User Avatar"
+                      className="w-8 h-8 rounded-full"
+                      onError={(e) => {
+                        e.target.onerror = null; // Prevent infinite loop
+                        e.target.src = "avatar"; // Fallback to default avatar
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+              >
+                <LogOut size={18} className="mr-2" />
+                Log Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white"
+                >
+                  Log In
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
+                  Register
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -104,15 +142,57 @@ export default function Navbar() {
               Sponsors
             </Link>
             <div className="flex flex-col space-y-2 pt-2 border-t border-[#2A2A2A]">
-              <Button
-                variant="outline"
-                className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white w-full"
-              >
-                Log In
-              </Button>
-              <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white w-full">
-                Register
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center space-x-3 py-2">
+                    {user?.avatarUrl === "avatar" ? (
+                      <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
+                        <User size={18} />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
+                        <img
+                          src={user?.avatarUrl}
+                          alt="User Avatar"
+                          className="w-8 h-8 rounded-full"
+                          onError={(e) => {
+                            e.target.onerror = null; // Prevent infinite loop
+                            e.target.src = "avatar"; // Fallback to default avatar
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white w-full"
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                      navigate("/login");
+                    }}
+                  >
+                    <LogOut size={18} className="mr-2" />
+                    Log Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button
+                      variant="outline"
+                      className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white w-full"
+                    >
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white w-full">
+                      Register
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

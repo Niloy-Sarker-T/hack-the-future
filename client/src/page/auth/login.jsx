@@ -17,6 +17,7 @@ import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { Github } from "lucide-react";
 import axiosInstance from "@/lib/axios-setup";
 import axios from "axios";
+import useAuthStore from "@/store/authStore";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -36,15 +37,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("registered") === "true") {
-      setShowSuccessMessage(true);
-      const timer = setTimeout(() => setShowSuccessMessage(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,31 +67,50 @@ export default function LoginPage() {
     return valid;
   };
 
+  const { login } = useAuthStore();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors({ email: "", password: "", general: "" });
 
     try {
-      const res = await axiosInstance.post("/api/auth/login", {
+      const res = await login({
         email: formData.email,
         password: formData.password,
-      }); // Use axiosInstance for API call
+      });
 
-      toast(res.data.message, {
+      // Verify token was properly set
+      // console.group("🔐 Login Success Debug");
+      // console.log("Login response:", res);
+      // console.log("User data:", res.data?.user);
+      // console.log("Access token received:", !!res.data?.accessToken);
+      // if (res.data?.accessToken) {
+      //   console.log("Token length:", res.data.accessToken.length);
+      //   console.log(
+      //     "Token preview:",
+      //     `${res.data.accessToken.substring(0, 10)}...`
+      //   );
+      // }
+      // console.groupEnd();
+
+      toast(res.message, {
         type: "success",
         richColors: true,
         closeButton: true,
       });
-
-      console.log("Login success:", res.data);
       navigate("/");
     } catch (err) {
-      console.log(err);
+      // console.group("❌ Login Error Debug");
+      // console.log("Error object:", err);
+      // console.log("Response data:", err.response?.data);
+      // console.log("Status code:", err.response?.status);
+      // console.groupEnd();
 
       if (axios.isAxiosError(err)) {
-        toast(err.response.data?.message, {
+        toast(err.response?.data?.message || "Login failed", {
           type: "error",
           richColors: true,
           closeButton: true,
@@ -108,7 +119,10 @@ export default function LoginPage() {
 
       setErrors((prev) => ({
         ...prev,
-        general: err.message || "Invalid email or password. Please try again.",
+        general:
+          err.response?.data?.message ||
+          err.message ||
+          "Invalid email or password. Please try again.",
       }));
     } finally {
       setIsLoading(false);
