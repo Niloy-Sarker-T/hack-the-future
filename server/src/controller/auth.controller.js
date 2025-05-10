@@ -106,7 +106,16 @@ const login = asyncHandler(async (req, res) => {
   const { email, password } = req.validatedData;
 
   const user = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      password: usersTable.password,
+      fullName: usersTable.fullName,
+      userName: usersTable.userName,
+      isVerified: usersTable.isVerified,
+      avatarUrl: usersTable.avatarUrl,
+      bio: usersTable.bio,
+    })
     .from(usersTable)
     .where(eq(usersTable.email, email))
     .limit(1);
@@ -139,10 +148,19 @@ const login = asyncHandler(async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   };
 
+  delete user[0].password;
+  const userWithoutPassword = user[0];
+
   return res
     .cookie("accessToken", accessToken, cookieOptions)
     .status(200)
-    .json(new ApiResponse(200, { accessToken }, "User logged in successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { user: userWithoutPassword, accessToken },
+        "User logged in successfully"
+      )
+    );
 });
 
 const logout = asyncHandler(async (req, res) => {
