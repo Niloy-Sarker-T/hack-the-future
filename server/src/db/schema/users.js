@@ -22,33 +22,20 @@ export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
-  // userName: varchar("user_name", { length: 255 }).unique(),
+  userName: varchar("user_name", { length: 255 }).unique(),
   password: text("password").notNull(),
+  avatarUrl: text("avatar_url").default("avatar"),
+  bio: text("bio").default("--"),
   // role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: false })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: false })
-    .defaultNow()
-    .notNull(),
   isVerified: boolean("is_verified").notNull(),
   code: text("code").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: false }).notNull(),
-});
-
-// User profiles table
-export const userProfilesTable = pgTable("user_profiles", {
-  userId: uuid("userId")
-    .primaryKey()
-    .references(() => usersTable.id),
-  avatarUrl: text("avatar_url").notNull(),
-  bio: text("bio").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
-    .notNull()
-    .defaultNow(),
+    .defaultNow()
+    .notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: false })
-    .notNull()
-    .defaultNow(),
+    .defaultNow()
+    .notNull(),
 });
 
 /**

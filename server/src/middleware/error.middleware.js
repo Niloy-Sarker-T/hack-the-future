@@ -35,10 +35,11 @@ const errorHandler = (err, req, res, next) => {
   const response = {
     ...error,
     message: error.message,
-    ...(process.env.NODE_ENV === "development" ? { stack: error.stack } : {}), // Error stack traces should be visible in development for debugging
+    ...(process.env.NODE_ENV !== "production" ? { stack: error.stack } : {}), // Error stack traces should be visible in development for debugging
   };
 
-  logger.error(`${error.message}`);
+  logger.error(`${res.req.url}====>"${error.message}"\n ${error.stack}`);
+  // logger.log();
 
   return res.status(error.statusCode).json(response);
 };

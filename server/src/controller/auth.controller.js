@@ -67,9 +67,21 @@ const register = asyncHandler(async (req, res) => {
         )
       );
   }
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+
+  let isUserNameExist, userName;
+  do {
+    userName = `${firstName}-${randomNum}`;
+    isUserNameExist = await db
+      .select({ userName: usersTable.userName })
+      .from(usersTable)
+      .where(eq(usersTable.userName, userName));
+  } while (isUserNameExist.length > 0);
+
   const newUser = {
     fullName: `${firstName} ${lastName}`,
     email,
+    userName,
     password: hashedPassword,
     code: verifyCode,
     expiresAt: verifyCodeExpiry,
@@ -100,7 +112,7 @@ const login = asyncHandler(async (req, res) => {
     .limit(1);
 
   if (user.length === 0) {
-    throw new ApiError(400, "User does not exist");
+    throw new ApiError(400, "please register before login");
   }
 
   const isPasswordValid = await bcrypt.compare(password, user[0].password);

@@ -19,7 +19,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden xl:flex items-center space-x-8">
           <Link
             to="#events"
             className="text-gray-300 hover:text-[#14B8A6] transition-colors"
