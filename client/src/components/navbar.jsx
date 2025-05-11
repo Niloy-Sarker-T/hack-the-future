@@ -1,8 +1,28 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Bell,
+  Menu,
+  X,
+  User,
+  Settings,
+  LogOut,
+  Home,
+  Search,
+  Calendar,
+  Code,
+  Users,
+} from "lucide-react";
 import useAuthStore from "@/store/authStore";
+import { Button } from "./ui/button";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,188 +32,176 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-[#121212]/80 backdrop-blur-md border-b border-[#2A2A2A]">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-full bg-[#14B8A6] flex items-center justify-center">
-            <span className="font-bold text-black">HF</span>
-          </div>
-          <span className="font-bold text-xl hidden sm:inline-block">
-            hack-the-future
-          </span>
-        </Link>
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center space-x-2 mr-8">
+            <div className="w-10 h-10 rounded-full bg-[#14B8A6] flex items-center justify-center">
+              <span className="font-bold text-black">HF</span>
+            </div>
+            <span className="font-bold text-xl hidden xl:inline-block text-white">
+              hack-the-future
+            </span>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden xl:flex items-center space-x-8">
-          <Link
-            to="#events"
-            className="text-gray-300 hover:text-[#14B8A6] transition-colors"
-          >
-            Events
-          </Link>
-          <Link
-            to="#benefits"
-            className="text-gray-300 hover:text-[#14B8A6] transition-colors"
-          >
-            Features
-          </Link>
-          <Link
-            to="#stories"
-            className="text-gray-300 hover:text-[#14B8A6] transition-colors"
-          >
-            Success Stories
-          </Link>
-          <Link
-            to="#sponsors"
-            className="text-gray-300 hover:text-[#14B8A6] transition-colors"
-          >
-            Sponsors
-          </Link>
-        </nav>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link
+              to="/hackathons"
+              className="text-gray-300 hover:text-[#14B8A6] transition-colors"
+            >
+              Join a Hackathon
+            </Link>
+            <Link
+              to={isAuthenticated ? `/${user.userName}/create` : `/signin`}
+              className="text-gray-300 hover:text-[#14B8A6] transition-colors"
+            >
+              Host a Hackathon
+            </Link>
+          </nav>
+        </div>
 
-        {/* Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="flex items-center space-x-4">
           {isAuthenticated ? (
             <>
-              <div className="flex items-center space-x-3 mr-2">
-                <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
-                  {user.avatarUrl === "avatar" ? (
-                    <User size={18} />
-                  ) : (
-                    <img
-                      src={user?.avatarUrl}
-                      alt="User Avatar"
-                      className="w-8 h-8 rounded-full"
-                      onError={(e) => {
-                        e.target.onerror = null; // Prevent infinite loop
-                        e.target.src = "avatar"; // Fallback to default avatar
+              <button className="text-gray-300 hover:text-white transition-colors">
+                <Search className="h-5 w-5" />
+              </button>
+              <button className="text-gray-300 hover:text-white transition-colors">
+                <Bell className="h-5 w-5" />
+              </button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-9 h-9 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-white hover:bg-[#14B8A6]/30 transition-colors">
+                    <User className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 hidden md:block bg-[#1A1A1A] border-[#2A2A2A] text-white">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+                  <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-[#2A2A2A] cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+                  <DropdownMenuItem className="hover:bg-[#2A2A2A] p-0 cursor-pointer text-[#14B8A6]">
+                    <Button
+                      variant="outline"
+                      className="w-full hover:text-red-400 bg-gray-800 hover:bg-gray-900 px-3 py-2 "
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                        navigate("/signin");
                       }}
-                    />
-                  )}
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-              >
-                <LogOut size={18} className="mr-2" />
-                Log Out
-              </Button>
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
-              <Link to="/login">
-                <Button
-                  variant="outline"
-                  className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white"
-                >
-                  Log In
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
-                  Register
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="text-[#14B8A6] hover:text-[#14B8A6] text-base bg-slate-800 hover:bg-slate-900 border-gray-600 hover:border-[#14B8A6]"
+                onClick={() => navigate("/signin")}
+              >
+                Sign In
+              </Button>
+              <Button
+                variant="default"
+                className="bg-[#14B8A6] text-base text-black hover:bg-[#0d9488]"
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </Button>
             </>
           )}
-        </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-gray-300"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          <button
+            className="md:hidden text-gray-300"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
-      {/* Mobile Menu */}
+
       {isMenuOpen && (
         <div className="md:hidden bg-[#121212] border-b border-[#2A2A2A]">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link
-              to="#events"
-              className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
+              to="/hackathons"
+              className="text-gray-300 hover:text-[#14B8A6] transition-colors"
             >
-              Events
+              Join a Hackathon
             </Link>
             <Link
-              to="#benefits"
-              className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
+              to={isAuthenticated ? `/${user.userName}/create` : `/signin`}
+              className="text-gray-300 hover:text-[#14B8A6] transition-colors"
             >
-              Features
+              Host a Hackathon
             </Link>
-            <Link
-              to="#stories"
-              className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Success Stories
-            </Link>
-            <Link
-              to="#sponsors"
-              className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sponsors
-            </Link>
-            <div className="flex flex-col space-y-2 pt-2 border-t border-[#2A2A2A]">
-              {isAuthenticated ? (
-                <>
-                  <div className="flex items-center space-x-3 py-2">
-                    {user?.avatarUrl === "avatar" ? (
-                      <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
-                        <User size={18} />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6]">
-                        <img
-                          src={user?.avatarUrl}
-                          alt="User Avatar"
-                          className="w-8 h-8 rounded-full"
-                          onError={(e) => {
-                            e.target.onerror = null; // Prevent infinite loop
-                            e.target.src = "avatar"; // Fallback to default avatar
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white w-full"
-                    onClick={() => {
-                      logout();
-                      setIsMenuOpen(false);
-                      navigate("/login");
-                    }}
-                  >
-                    <LogOut size={18} className="mr-2" />
-                    Log Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button
-                      variant="outline"
-                      className="border-[#14B8A6] text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white w-full"
-                    >
-                      Log In
-                    </Button>
-                  </Link>
-                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white w-full">
-                      Register
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
+
+            {isAuthenticated ? (
+              <div className="pt-2 border-t border-[#2A2A2A]">
+                <Link
+                  to="/profile"
+                  className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2 flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Link>
+                <Link
+                  to="/settings"
+                  className="text-gray-300 hover:text-[#14B8A6] transition-colors py-2 flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Link>
+                <Button
+                  variant="outline"
+                  className="w-full text-red-400 hover:text-red-400 hover:bg-gray-900 bg-gray-800 px-3 py-2"
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                    navigate("/signin");
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="pt-4 border-t border-[#2A2A2A] flex flex-col space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full text-base text-[#14B8A6] hover:text-[#14B8A6] bg-slate-800 hover:bg-slate-900 border-gray-600 hover:border-[#14B8A6]"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate("/signin");
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="default"
+                  className="w-full bg-[#14B8A6] text-black hover:bg-[#0d9488]"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate("/register");
+                  }}
+                >
+                  Register
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
