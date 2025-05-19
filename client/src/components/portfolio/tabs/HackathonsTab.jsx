@@ -2,20 +2,22 @@ import { Calendar, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const HackathonsTab = ({ hackathons }) => {
+const HackathonsTab = ({ hackathons, showEditOptions = true }) => {
   return (
     <div className="bg-gradient-to-br from-[#1A1A1A] to-[#222222] border border-[#2A2A2A] rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">
           Hackathons ({hackathons.length})
         </h2>
-        <Button
-          variant="outline"
-          className="border-[#2A2A2A] bg-[#2A2A2A] text-white"
-        >
-          <Calendar className="h-4 w-4 mr-2" />
-          Find Hackathons
-        </Button>
+        {showEditOptions && (
+          <Button
+            variant="outline"
+            className="border-[#2A2A2A] bg-[#2A2A2A] text-white"
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Find Hackathons
+          </Button>
+        )}
       </div>
 
       <div className="space-y-4">

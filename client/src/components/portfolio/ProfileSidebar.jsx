@@ -9,18 +9,20 @@ const AboutSection = ({ bio }) => (
   </div>
 );
 
-const SkillsSection = ({ skills }) => (
+const SkillsSection = ({ skills, showEditOptions = true }) => (
   <div className="bg-gradient-to-br from-[#1A1A1A] to-[#222222] border border-[#2A2A2A] rounded-lg p-6">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold">Skills</h2>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 text-[#14B8A6] hover:text-[#0E9384]"
-      >
-        <Edit2 className="h-4 w-4 mr-1" />
-        Edit
-      </Button>
+      {showEditOptions && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-[#14B8A6] hover:text-[#0E9384]"
+        >
+          <Edit2 className="h-4 w-4 mr-1" />
+          Edit
+        </Button>
+      )}
     </div>
     <div className="flex flex-wrap gap-2">
       {skills.map((skill) => (
@@ -35,18 +37,20 @@ const SkillsSection = ({ skills }) => (
   </div>
 );
 
-const InterestsSection = ({ interests }) => (
+const InterestsSection = ({ interests, showEditOptions = true }) => (
   <div className="bg-gradient-to-br from-[#1A1A1A] to-[#222222] border border-[#2A2A2A] rounded-lg p-6">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold">Interests</h2>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 text-[#14B8A6] hover:text-[#0E9384]"
-      >
-        <Edit2 className="h-4 w-4 mr-1" />
-        Edit
-      </Button>
+      {showEditOptions && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-[#14B8A6] hover:text-[#0E9384]"
+        >
+          <Edit2 className="h-4 w-4 mr-1" />
+          Edit
+        </Button>
+      )}
     </div>
     <div className="flex flex-wrap gap-2">
       {interests.map((interest) => (
@@ -112,12 +116,18 @@ const StatsSection = ({ stats }) => (
   </div>
 );
 
-const ProfileSidebar = ({ userData }) => {
+const ProfileSidebar = ({ userData, showEditOptions = true }) => {
   return (
     <div className="md:col-span-1 space-y-6">
       <AboutSection bio={userData.bio} />
-      <SkillsSection skills={userData.skills} />
-      <InterestsSection interests={userData.interests} />
+      <SkillsSection
+        skills={userData.skills}
+        showEditOptions={showEditOptions}
+      />
+      <InterestsSection
+        interests={userData.interests}
+        showEditOptions={showEditOptions}
+      />
       <StatsSection stats={userData.stats} />
     </div>
   );

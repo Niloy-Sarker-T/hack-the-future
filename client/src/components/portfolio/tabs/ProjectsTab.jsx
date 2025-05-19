@@ -2,15 +2,17 @@ import { Plus, Calendar, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const ProjectsTab = ({ projects }) => {
+const ProjectsTab = ({ projects, showEditOptions = true }) => {
   return (
     <div className="bg-gradient-to-br from-[#1A1A1A] to-[#222222] border border-[#2A2A2A] rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Projects ({projects.length})</h2>
-        <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Project
-        </Button>
+        {showEditOptions && (
+          <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Project
+          </Button>
+        )}
       </div>
 
       <div className="space-y-6">

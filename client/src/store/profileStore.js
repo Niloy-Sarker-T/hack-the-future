@@ -165,6 +165,27 @@ const useProfileStore = create((set) => ({
     }
   },
 
+  fetchUserProfileByUsername: async (username) => {
+    // Example of how you would implement API fetching by username
+    try {
+      set({ isLoading: true, error: null });
+
+      // This would be replaced with actual API call:
+      // const response = await fetch(`/api/users/by-username/${username}`);
+      // if (!response.ok) throw new Error('Failed to fetch user profile');
+      // const userData = await response.json();
+
+      // For now, just simulate a delay and use mock data
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // In a real application, this would be filtered by username from the API
+      // For now, we're just returning the mock data
+      set({ userData: initialState.userData, isLoading: false });
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
+
   fetchUserProjects: async (userId) => {
     try {
       set({ isLoading: true, error: null });

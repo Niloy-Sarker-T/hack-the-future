@@ -4,7 +4,12 @@ import ProjectsTab from "./tabs/ProjectsTab";
 import HackathonsTab from "./tabs/HackathonsTab";
 import AchievementsTab from "./tabs/AchievementsTab";
 
-const ProfileContent = ({ projectsData, hackathonsData, achievementsData }) => {
+const ProfileContent = ({
+  projectsData,
+  hackathonsData,
+  achievementsData,
+  showEditOptions = true,
+}) => {
   const [activeTab, setActiveTab] = useState("projects");
 
   return (
@@ -36,15 +41,24 @@ const ProfileContent = ({ projectsData, hackathonsData, achievementsData }) => {
         </TabsList>
 
         <TabsContent value="projects" className="mt-0">
-          <ProjectsTab projects={projectsData} />
+          <ProjectsTab
+            projects={projectsData}
+            showEditOptions={showEditOptions}
+          />
         </TabsContent>
 
         <TabsContent value="hackathons" className="mt-0">
-          <HackathonsTab hackathons={hackathonsData} />
+          <HackathonsTab
+            hackathons={hackathonsData}
+            showEditOptions={showEditOptions}
+          />
         </TabsContent>
 
         <TabsContent value="achievements" className="mt-0">
-          <AchievementsTab achievements={achievementsData} />
+          <AchievementsTab
+            achievements={achievementsData}
+            showEditOptions={showEditOptions}
+          />
         </TabsContent>
       </Tabs>
     </div>

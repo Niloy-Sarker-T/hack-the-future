@@ -5,6 +5,7 @@ import Layout from "./page/Layout";
 import RegisterPage from "./page/auth/register";
 import NotFound from "./page/NotFound";
 import Profile from "./page/profile";
+import ProfilePreview from "./page/profile-preview";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -19,6 +20,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/user/:userName" element={<ProfilePreview />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
