@@ -11,6 +11,7 @@ import {
 } from "../utils/verification-code-expiry.js";
 import { ApiError } from "../utils/api-error.js";
 import env from "../config/index.js";
+import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
 
 const register = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password } = req.validatedData;
@@ -131,11 +132,9 @@ const login = asyncHandler(async (req, res) => {
 
   let accessToken;
   try {
-    accessToken = jwt.sign(
-      { userId: user[0].userId, email: user[0].email },
-      env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
+    accessToken = jwt.sign({ userId: user[0].id }, env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
   } catch (jwtError) {
     console.error("JWT Error:", jwtError);
     throw new ApiError(500, "Failed to generate access token");
@@ -180,4 +179,37 @@ const logout = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-export { register, login, logout };
+const uploadProfileImage = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  if (!req.file) {
+    throw new ApiError(400, "No file uploaded");
+  }
+  // Upload to Cloudinary using the utility
+  let result;
+  try {
+    result = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: "profile_images",
+      resource_type: "image",
+      public_id: `user_${userId}_${Date.now()}`,
+      overwrite: true,
+    });
+  } catch (error) {
+    throw new ApiError(500, "Cloudinary upload failed");
+  }
+  // Update user in DB
+  await db
+    .update(usersTable)
+    .set({ avatarUrl: result.secure_url })
+    .where(eq(usersTable.id, userId));
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { avatarUrl: result.secure_url },
+        "Profile image updated"
+      )
+    );
+});
+
+export { register, login, logout, uploadProfileImage };

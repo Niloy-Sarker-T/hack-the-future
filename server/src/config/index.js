@@ -30,6 +30,9 @@ let envSchema = z.object({
   ACCESS_TOKEN_SECRET: z.string().nonempty(),
   ACCESS_TOKEN_EXPIRY: z.string().nonempty(),
   DATABASE_URL: z.string().nonempty(),
+  CLOUDINARY_CLOUD_NAME: z.string().nonempty(),
+  CLOUDINARY_API_KEY: z.string().nonempty(),
+  CLOUDINARY_API_SECRET: z.string().nonempty(),
 });
 
 // Helper function to validate URLs
