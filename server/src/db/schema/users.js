@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   boolean,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // Enum for user roles
@@ -26,6 +27,7 @@ export const usersTable = pgTable("users", {
   password: text("password").notNull(),
   avatarUrl: text("avatar_url").default("avatar"),
   bio: text("bio").default("--"),
+  socialsLinks: jsonb("socials_links"),
   // role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
   isVerified: boolean("is_verified").notNull(),
   code: text("code").notNull(),

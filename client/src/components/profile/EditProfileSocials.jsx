@@ -5,8 +5,12 @@ import { Label } from "@/components/ui/label";
 
 export default function EditProfileSocials() {
   return (
-    <Card className="bg-neutral-900 text-white">
+    <Card className="bg-neutral-900 text-gray-300">
       <CardContent className="p-6 grid gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Social Links</h2>
+          <span className="text-sm">Connect your social profiles</span>
+        </div>
         <div className="grid gap-2">
           <Label htmlFor="github">GitHub</Label>
           <Input id="github" placeholder="github.com/yourusername" />

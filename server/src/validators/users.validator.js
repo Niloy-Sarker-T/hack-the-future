@@ -1,14 +1,27 @@
-// schemas/user.js
 import { z } from "zod";
 
-export const registerSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+export const updateUserProfileSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  bio: z.string().max(200, "Bio must be less than 200 characters").optional(),
+  userName: z
+    .string()
+    .min(4, "Username is required")
+    .max(20, "Username must be less than 20 characters")
+    .optional(),
+  socialsLinks: z
+    .object({
+      website: z.string().url("Invalid URL").optional(),
+      twitter: z.string().url("Invalid URL").optional(),
+      github: z.string().url("Invalid URL").optional(),
+      linkedin: z.string().url("Invalid URL").optional(),
+    })
+    .optional(),
 });
-
-export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+export const uploadProfileImageSchema = z.object({
+  image: z
+    .instanceof(Buffer)
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "File size must be less than 5MB",
+    })
+    .optional(),
 });
