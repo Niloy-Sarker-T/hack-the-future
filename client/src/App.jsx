@@ -4,10 +4,11 @@ import LoginPage from "./page/auth/login";
 import Layout from "./page/Layout";
 import RegisterPage from "./page/auth/register";
 import NotFound from "./page/NotFound";
-import Profile from "./page/profile";
-import ProfilePreview from "./page/profile-preview";
+import Profile from "./page/profile/profile";
+import ProfilePreview from "./page/profile/profile-preview";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
+import EditProfilePage from "./page/profile/EditProfile";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
             <Route path="/signin" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/edit/profile" element={<EditProfilePage />} />
             <Route path="/user/:userName" element={<ProfilePreview />} />
             <Route path="*" element={<NotFound />} />
           </Route>

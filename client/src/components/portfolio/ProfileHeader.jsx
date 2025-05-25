@@ -1,24 +1,17 @@
 import { Edit2, MapPin, Github, Linkedin, Twitter, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import Modal from "@/components/ui/modal";
+import ProfileImageUpload from "./ProfileImageUpload";
+import { useState } from "react";
 
 const ProfileHeader = ({ userData, showEditOptions = true }) => {
+  const [avatar, setAvatar] = useState(userData.avatar || "/placeholder.svg");
+
   return (
     <div className="relative mb-8">
       {/* Cover Image */}
-      <div className="h-48 md:h-64 rounded-lg bg-gradient-to-r from-[#0F766E] to-[#134E4A] overflow-hidden">
-        {showEditOptions && (
-          <div className="absolute top-4 right-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-black/20 backdrop-blur-sm border-white/20 text-white"
-            >
-              <Edit2 className="h-4 w-4 mr-2" />
-              Edit Cover
-            </Button>
-          </div>
-        )}
-      </div>
+      <div className="h-48 md:h-64 rounded-lg bg-gradient-to-r from-[#0F766E] to-[#134E4A] overflow-hidden"></div>
 
       {/* Profile Info */}
       <div className="flex flex-col md:flex-row gap-6 -mt-16 md:-mt-20 px-4">
@@ -26,21 +19,16 @@ const ProfileHeader = ({ userData, showEditOptions = true }) => {
         <div className="relative">
           <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#121212] overflow-hidden">
             <img
-              src={userData.avatar || "/placeholder.svg"}
+              src={avatar}
               alt={userData.name}
               className="w-full h-full object-cover"
             />
           </div>
-          {showEditOptions && (
-            <button className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-[#14B8A6] flex items-center justify-center text-white hover:bg-[#0E9384] transition-colors">
-              <Edit2 className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
         {/* User Info */}
         <div className="flex-1 pt-4 md:pt-16">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white">
                 {userData.name}
@@ -49,17 +37,15 @@ const ProfileHeader = ({ userData, showEditOptions = true }) => {
             </div>
             {showEditOptions && (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="border-[#2A2A2A] backdrop-blur-sm bg-[#2A2A2A] text-white"
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit Profile
-                </Button>
-                <Button className="bg-[#14B8A6] hover:bg-[#0E9384] text-white">
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Add Project
-                </Button>
+                <Link to="/edit/profile">
+                  <Button
+                    variant="outline"
+                    className="border-[#2A2A2A] backdrop-blur-sm bg-[#2A2A2A] text-white"
+                  >
+                    <Edit2 className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:block">Edit Profile</span>
+                  </Button>
+                </Link>
               </div>
             )}
           </div>

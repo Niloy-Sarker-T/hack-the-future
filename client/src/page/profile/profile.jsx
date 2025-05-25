@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import ProfileHeader from "../components/portfolio/ProfileHeader";
-import ProfileSidebar from "../components/portfolio/ProfileSidebar";
-import ProfileContent from "../components/portfolio/ProfileContent";
-import useProfileStore from "../store/profileStore";
+import ProfileHeader from "../../components/portfolio/ProfileHeader";
+import ProfileSidebar from "../../components/portfolio/ProfileSidebar";
+import ProfileContent from "../../components/portfolio/ProfileContent";
+import ProfileLoading from "../../components/portfolio/ProfileLoading";
+import ProfileError from "../../components/portfolio/ProfileError";
+import useProfileStore from "../../store/profileStore";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -35,19 +37,25 @@ const Profile = () => {
     fetchUserAchievements,
   ]);
 
+  const handleRetry = () => {
+    // Retry fetching profile data
+    fetchUserProfile(userId || "1");
+    fetchUserProjects(userId || "1");
+    fetchUserHackathons(userId || "1");
+    fetchUserAchievements(userId || "1");
+  };
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#121212] to-[#1E1E1E] text-white flex items-center justify-center">
-        <div className="text-[#14B8A6]">Loading...</div>
-      </div>
-    );
+    return <ProfileLoading />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#121212] to-[#1E1E1E] text-white flex items-center justify-center">
-        <div className="text-red-400">Error: {error}</div>
-      </div>
+      <ProfileError
+        error={error}
+        onRetry={handleRetry}
+        type={error.includes("not found") ? "user-not-found" : "general"}
+      />
     );
   }
 
