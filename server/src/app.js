@@ -48,11 +48,17 @@ import { errorHandler } from "./middleware/error.middleware.js";
 import healthcheckRouter from "./route/healthcheck.route.js";
 import authRouter from "./route/auth.route.js";
 import userRoute from "./route/users.route.js";
+import hackathonsRoute from "./route/hackathons.route.js";
+import projectsRoute from "./route/projects.route.js";
+import teamsRoute from "./route/teams.route.js";
 
 // * healthcheck
 app.use("/api/healthcheck", healthcheckRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRoute);
+app.use("/api/hackathons", hackathonsRoute);
+app.use("/api/projects", projectsRoute);
+app.use("/api/teams", teamsRoute);
 
 // * API DOCS
 // ? Keeping swagger code at the end so that we can load swagger on "/" route

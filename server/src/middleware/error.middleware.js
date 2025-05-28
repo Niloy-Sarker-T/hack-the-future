@@ -15,33 +15,26 @@ import { asyncHandler } from "../utils/async-handler.js";
  * @description This middleware is responsible to catch the errors from any request handler wrapped inside the {@link asyncHandler}
  */
 const errorHandler = (err, req, res, next) => {
-  let error = err;
+  let error = { ...err };
+  error.message = err.message;
 
-  // Check if the error is an instance of an ApiError class which extends native Error class
-  if (!(error instanceof ApiError)) {
-    // if not
-    // create a new ApiError instance to keep the consistency
-
-    // assign an appropriate status code
-    const statusCode = error.statusCode || 500;
-    // error.statusCode || error instanceof mongoose.Error ? 400 : 500;
-
-    // set a message from native Error instance or a custom one
-    const message = error.message || "Something went wrong";
-    error = new ApiError(statusCode, message, error?.errors || [], err.stack);
+  // Drizzle unique constraint error
+  if (err.code === "23505") {
+    const message = "Duplicate field value entered";
+    error = new ApiError(400, message);
   }
 
-  // Now we are sure that the `error` variable will be an instance of ApiError class
-  const response = {
-    ...error,
-    message: error.message,
-    ...(process.env.NODE_ENV !== "production" ? { stack: error.stack } : {}), // Error stack traces should be visible in development for debugging
-  };
+  // Drizzle foreign key constraint error
+  if (err.code === "23503") {
+    const message = "Referenced resource not found";
+    error = new ApiError(404, message);
+  }
 
-  logger.error(`${res.req.url}====>"${error.message}"\n ${error.stack}`);
-  // logger.log();
-
-  return res.status(error.statusCode).json(response);
+  res.status(error.statusCode || 500).json({
+    success: false,
+    error: error.message || "Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
 };
 
 export { errorHandler };

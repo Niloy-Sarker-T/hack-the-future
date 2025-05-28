@@ -178,4 +178,34 @@ const logout = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-export { register, login, logout };
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { email, code } = req.body;
+
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  if (!user.length) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const currentUser = user[0];
+
+  if (currentUser.code !== code || new Date() > currentUser.expiresAt) {
+    throw new ApiError(400, "Invalid or expired verification code");
+  }
+
+  await db
+    .update(usersTable)
+    .set({
+      isVerified: true,
+      code: null,
+      expiresAt: null,
+    })
+    .where(eq(usersTable.email, email));
+
+  res.status(200).json(new ApiResponse(200, {}, "Email verified successfully"));
+});
+
+export { register, login, logout, verifyEmail };

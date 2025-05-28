@@ -29,6 +29,20 @@
       "when": 1748194252030,
       "tag": "0003_yielding_silvermane",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1748244249964,
+      "tag": "0004_sticky_zaladane",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1748285852495,
+      "tag": "0005_sweet_frightful_four",
+      "breakpoints": true
     }
   ]
 }
