@@ -1,11 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import userStore from "@/store/user-store";
+import { toast } from "sonner";
 
 const Signup = () => {
+  const signup = userStore((state) => state.signup);
+  const isLoading = userStore.getState().isLoading;
+  const error = userStore((state) => state.error);
+
+  console.log("isLoading", isLoading);
+
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,7 +31,9 @@ const Signup = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First Name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
     else if (formData.password.length < 6)
@@ -29,7 +41,7 @@ const Signup = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -37,7 +49,42 @@ const Signup = () => {
     } else {
       setErrors({});
       // Send formData to server or API
-      console.log("Form submitted", formData);
+      const res = await signup(formData);
+      console.log("Signup response:", res);
+
+      if (res?.success) {
+        // show toast notification and redirect to login
+        toast.success("Sign Up Successful", {
+          description:
+            "You have successfully signed up. Please log in to continue.",
+          action: {
+            label: "x",
+            onClick: () => toast.dismiss(),
+          },
+          duration: 5000,
+          richColors: true,
+        });
+        navigate("/login");
+      } else {
+        // handle error
+        toast.error("Sign Up Failed", {
+          description:
+            res?.message || "Failed to create account. Please try again.",
+          action: {
+            label: "x",
+            onClick: () => toast.dismiss(),
+          },
+          richColors: true,
+          duration: 5000,
+        });
+      }
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+      });
+      setErrors({});
     }
   };
 
@@ -122,9 +169,13 @@ const Signup = () => {
 
             {/* Submit Button */}
             <div className="space-y-4">
-              <Button type="submit" className="w-full">
-                Sign up
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing up..." : "Sign up"}
               </Button>
+
+              {error && (
+                <p className="text-sm text-red-500 text-center">{error}</p>
+              )}
 
               <p className="text-center text-sm">
                 Already have an account?{" "}

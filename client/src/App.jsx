@@ -4,6 +4,7 @@ import HomePage from "@/pages/home";
 import NotFoundPage from "./pages/page-not-found";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/signup";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <Toaster />
     </BrowserRouter>
   );
 }

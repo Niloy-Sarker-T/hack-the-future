@@ -10,14 +10,23 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import userStore from "@/store/user-store";
+import { toast } from "sonner";
 
-export default function Header({ user }) {
+export default function Header() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    // Implement logout logic
-    console.log("Logging out");
+  const user = userStore((state) => state.user);
+  const logout = userStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logout successfull", {
+      richColors: true,
+      description: "You've successfully logged out.",
+      duration: 1500,
+    });
     navigate("/login");
   };
 
@@ -63,8 +72,8 @@ export default function Header({ user }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={user.avatarUrl} alt="avatar" />
+                  <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -76,7 +85,7 @@ export default function Header({ user }) {
                     <Link to="/manage-hackathon">Manage Hackathon</Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} variant="destructive">
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

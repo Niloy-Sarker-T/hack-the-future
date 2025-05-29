@@ -13,8 +13,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Link } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
+import userStore from "@/store/user-store";
+import { toast } from "sonner";
 
 // ✅ Validation schema using Zod
 const loginSchema = z.object({
@@ -25,6 +27,12 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
+  const login = userStore((state) => state.login);
+  const isLoading = userStore((state) => state.isLoading);
+  const error = userStore((state) => state.error);
+
+  const navigate = useNavigate();
+
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -33,9 +41,33 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (values) => {
-    console.log("Login submitted:", values);
-    // call your login logic here
+  const onSubmit = async (values) => {
+    const result = await login(values);
+    if (result?.success) {
+      // redirect to home and show success richtext toast
+      toast.success("Login Successful", {
+        description: "You have successfully logged in.",
+        action: {
+          label: "x",
+          onClick: () => toast.dismiss(),
+        },
+        richColors: true,
+        duration: 3000,
+      });
+      navigate("/", { replace: true });
+    } else {
+      // show error toast
+      toast.error("Login Failed", {
+        description: result?.error || "An error occurred during login.",
+        action: {
+          label: "x",
+          onClick: () => toast.dismiss(),
+        },
+        richColors: true,
+        duration: 3000,
+      });
+    }
+    // error is handled in store, can show error from `error`
   };
 
   return (
@@ -82,12 +114,15 @@ export default function LoginPage() {
                 )}
               />
               <div className="space-y-4">
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </div>
             </form>
           </Form>
+          {error && (
+            <div className="mt-4 text-red-600 text-sm text-center">{error}</div>
+          )}
           <div className="flex mt-4 justify-center text-sm">
             <Link
               to="/forgot-password"
