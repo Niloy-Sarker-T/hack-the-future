@@ -43,6 +43,13 @@
       "when": 1748285852495,
       "tag": "0005_sweet_frightful_four",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1748497051386,
+      "tag": "0006_demonic_chimera",
+      "breakpoints": true
     }
   ]
 }

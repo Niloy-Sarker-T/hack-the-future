@@ -20,7 +20,7 @@ export const usersTable = pgTable("users", {
   location: varchar("location", { length: 255 }).default("--"),
   bio: text("bio").default("--"),
   socialLinks: jsonb("social_links"),
-  // role: varchar("role", { length: 255 }).default(UserRole.USER).notNull(),
+  role: varchar("role", { length: 255 }),
   skills: jsonb("skills").default([]), // Array of skills
   interests: jsonb("interests").default([]), // Array of interests
   isVerified: boolean("is_verified").notNull(),

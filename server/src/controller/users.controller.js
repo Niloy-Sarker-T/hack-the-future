@@ -41,11 +41,18 @@ const uploadProfileImage = asyncHandler(async (req, res) => {
 
 const updateUserProfile = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { userName, bio, skills, socialLinks } = req.body;
+  const { firstName, lastName, userName, bio, skills, socialLinks } = req.body;
 
   const [updatedUser] = await db
     .update(usersTable)
-    .set({ userName, bio, skills, socialLinks, updatedAt: new Date() })
+    .set({
+      fullName: `${firstName} ${lastName}`,
+      userName,
+      bio,
+      skills,
+      socialLinks,
+      updatedAt: new Date(),
+    })
     .where(eq(usersTable.id, userId))
     .returning({
       id: usersTable.id,

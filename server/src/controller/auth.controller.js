@@ -13,7 +13,7 @@ import { ApiError } from "../utils/api-error.js";
 import env from "../config/index.js";
 
 const register = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password } = req.validatedData;
+  const { firstName, lastName, email, password } = req.body;
 
   const existingUserByEmail = await db
     .select()
@@ -27,7 +27,7 @@ const register = asyncHandler(async (req, res) => {
   if (existingUserByEmail.length > 0) {
     const user = existingUserByEmail[0];
     if (user.isVerified) {
-      res
+      return res
         .status(409)
         .json(new ApiResponse(409, {}, "User already exists with this email"));
     }
@@ -38,8 +38,8 @@ const register = asyncHandler(async (req, res) => {
       .set({
         fullName: `${firstName} ${lastName}`,
         password: hashedPassword,
-        verifyCode,
-        verifyCodeExpiry,
+        code: verifyCode,
+        expiresAt: verifyCodeExpiry,
       })
       .where(eq(usersTable.email, email));
 
@@ -71,7 +71,7 @@ const register = asyncHandler(async (req, res) => {
 
   let isUserNameExist, userName;
   do {
-    userName = `${firstName}-${randomNum}`;
+    userName = `${firstName.toLowerCase()}-${randomNum}`;
     isUserNameExist = await db
       .select({ userName: usersTable.userName })
       .from(usersTable)
@@ -83,6 +83,14 @@ const register = asyncHandler(async (req, res) => {
     email,
     userName,
     password: hashedPassword,
+    code: verifyCode,
+    avatarUrl: null,
+    bio: null,
+    location: null,
+    socialLinks: null,
+    skills: null,
+    interests: null,
+    role: "user",
     code: verifyCode,
     expiresAt: verifyCodeExpiry,
     isVerified: false,
@@ -103,7 +111,7 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.validatedData;
+  const { email, password } = req.body;
 
   const user = await db
     .select({
@@ -115,6 +123,11 @@ const login = asyncHandler(async (req, res) => {
       isVerified: usersTable.isVerified,
       avatarUrl: usersTable.avatarUrl,
       bio: usersTable.bio,
+      location: usersTable.location,
+      socialLinks: usersTable.socialLinks,
+      skills: usersTable.skills,
+      interests: usersTable.interests,
+      role: usersTable.role,
     })
     .from(usersTable)
     .where(eq(usersTable.email, email))
@@ -129,9 +142,9 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  let accessToken;
+  let token;
   try {
-    accessToken = jwt.sign({ userId: user[0].id }, env.ACCESS_TOKEN_SECRET, {
+    token = jwt.sign({ userId: user[0].id }, env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1d",
     });
   } catch (jwtError) {
@@ -146,17 +159,16 @@ const login = asyncHandler(async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   };
 
-  delete user[0].password;
-  const userWithoutPassword = user[0];
+  const { password: _, ...userWithoutPassword } = user[0];
 
   return res
-    .cookie("accessToken", accessToken, cookieOptions)
+    .cookie("token", token, cookieOptions)
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { user: userWithoutPassword, accessToken },
-        "User logged in successfully"
+        { user: userWithoutPassword, token },
+        `Welcome back ${userWithoutPassword.fullName}!`
       )
     );
 });
@@ -173,12 +185,12 @@ const logout = asyncHandler(async (req, res) => {
     maxAge: 0, // Set maxAge to 0 to delete the cookie
   };
   return res
-    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("token", cookieOptions)
     .status(200)
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-export const verifyEmail = asyncHandler(async (req, res) => {
+const verifyEmail = asyncHandler(async (req, res) => {
   const { email, code } = req.body;
 
   const user = await db

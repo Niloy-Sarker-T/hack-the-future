@@ -30,6 +30,15 @@ const errorHandler = (err, req, res, next) => {
     error = new ApiError(404, message);
   }
 
+  logger.error({
+    message: error.message,
+    stack: error.stack,
+    statusCode: error.statusCode || 500,
+    method: req.method,
+    url: req.originalUrl,
+    user: req.user ? req.user.id : "Unauthenticated",
+  });
+
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || "Server Error",
