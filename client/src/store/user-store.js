@@ -117,6 +117,11 @@ const userStore = create(
         }
       },
 
+      // update user data
+      updateUser: (userData) => {
+        set({ user: { ...get().user, ...userData } });
+      },
+
       // Check if user is authenticated
       isAuthenticated: () => {
         const { user } = get();

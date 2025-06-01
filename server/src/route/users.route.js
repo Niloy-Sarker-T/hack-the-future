@@ -8,6 +8,10 @@ import {
 import verifyJWT from "../middleware/auth.middleware.js";
 import upload from "../middleware/multer.middleware.js";
 import { validate } from "../middleware/validator.middleware.js";
+import {
+  updateUserProfileSchema,
+  uploadProfileImageSchema,
+} from "../validators/users.validator.js";
 
 const router = Router();
 
@@ -22,7 +26,7 @@ router.get("/:userId", getUserProfile);
 router.put(
   "/:userId",
   verifyJWT,
-  validate("updateUserProfileSchema"),
+  validate(updateUserProfileSchema),
   updateUserProfile
 );
 
@@ -30,6 +34,7 @@ router.put(
 router.post(
   "/:userId/avatar",
   verifyJWT,
+  validate(uploadProfileImageSchema),
   upload.single("image"),
   uploadProfileImage
 );

@@ -27,21 +27,19 @@ apiClient.interceptors.request.use(
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
+  (response) => response.data,
   (error) => {
-    // Handle different error scenarios
     if (error.response) {
-      // Server responded with error status
-      const message = error.response.data?.error || "An error occurred";
-      throw new Error(message);
+      if (error.response.status === 403) {
+        userStore.getState().logout();
+      }
+      return Promise.reject(error);
     } else if (error.request) {
-      // Request made but no response received
-      throw new Error("Network error - please check your connection");
+      return Promise.reject(
+        new Error("Network error - please check your connection")
+      );
     } else {
-      // Something else happened
-      throw new Error("An unexpected error occurred");
+      return Promise.reject(new Error("An unexpected error occurred"));
     }
   }
 );

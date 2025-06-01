@@ -5,9 +5,10 @@ import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
 import { usersTable } from "../db/schema/users.js";
+import logger from "../logger/winston.logger.js";
 
 const uploadProfileImage = asyncHandler(async (req, res) => {
-  const userId = req.user;
+  const userId = req.user.id;
   if (!req.file) {
     throw new ApiError(400, "No file uploaded");
   }
@@ -41,31 +42,52 @@ const uploadProfileImage = asyncHandler(async (req, res) => {
 
 const updateUserProfile = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { firstName, lastName, userName, bio, skills, socialLinks } = req.body;
+  const {
+    firstName,
+    lastName,
+    userName,
+    location,
+    bio,
+    skills,
+    socialLinks,
+    interests,
+  } = req.body;
 
-  const [updatedUser] = await db
+  const updatedUser = await db
     .update(usersTable)
     .set({
       fullName: `${firstName} ${lastName}`,
       userName,
       bio,
       skills,
+      interests,
       socialLinks,
+      location,
       updatedAt: new Date(),
     })
     .where(eq(usersTable.id, userId))
     .returning({
-      id: usersTable.id,
-      email: usersTable.email,
+      fullName: usersTable.fullName,
       userName: usersTable.userName,
       bio: usersTable.bio,
+      location: usersTable.location,
+      socialLinks: usersTable.socialLinks,
       skills: usersTable.skills,
-      socialsLinks: usersTable.socialLinks,
+      interests: usersTable.interests,
     });
 
-  res
+  if (updatedUser.length === 0) {
+    throw new ApiError(404, "User not found");
+  }
+  return res
     .status(200)
-    .json(new ApiResponse(200, updatedUser, "Profile updated successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { user: updatedUser[0] },
+        "Profile updated successfully"
+      )
+    );
 });
 
 const getUserProfileByUsername = asyncHandler(async (req, res) => {
@@ -81,14 +103,14 @@ const getUserProfileByUsername = asyncHandler(async (req, res) => {
       bio: usersTable.bio,
       location: usersTable.location,
       avatarUrl: usersTable.avatarUrl,
-      socialsLinks: usersTable.socialsLinks,
+      socialLinks: usersTable.socialLinks,
       skills: usersTable.skills,
       interests: usersTable.interests,
     })
     .from(usersTable)
     .where(eq(usersTable.userName, username))
     .limit(1)
-    .then((rows) => rows[0]);
+    .then((rows) => (rows && rows.length > 0 ? rows[0] : null));
 
   if (!user) {
     throw new ApiError(404, "User not found");

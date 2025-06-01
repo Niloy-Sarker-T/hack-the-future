@@ -12,8 +12,6 @@ const Signup = () => {
   const isLoading = userStore.getState().isLoading;
   const error = userStore((state) => state.error);
 
-  console.log("isLoading", isLoading);
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -50,7 +48,6 @@ const Signup = () => {
       setErrors({});
       // Send formData to server or API
       const res = await signup(formData);
-      console.log("Signup response:", res);
 
       if (res?.success) {
         // show toast notification and redirect to login

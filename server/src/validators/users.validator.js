@@ -14,13 +14,26 @@ export const updateUserProfileSchema = z.object({
     .min(4, "Username is required")
     .max(20, "Username must be less than 20 characters")
     .optional(),
-  socialsLinks: z
+  socialLinks: z
     .object({
       website: z.string().url("Invalid URL").optional(),
       twitter: z.string().url("Invalid URL").optional(),
       github: z.string().url("Invalid URL").optional(),
       linkedin: z.string().url("Invalid URL").optional(),
     })
+    .optional(),
+  interests: z
+    .array(z.string().trim().min(1, "Interest cannot be empty"))
+    .max(5, "You can add up to 5 interests")
+    .optional(),
+  location: z
+    .string()
+    .trim()
+    .max(100, "Location must be less than 100 characters")
+    .optional(),
+  skills: z
+    .array(z.string().trim().min(1, "Skill cannot be empty"))
+    .max(10, "You can add up to 10 skills")
     .optional(),
 });
 export const uploadProfileImageSchema = z.object({

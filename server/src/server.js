@@ -14,8 +14,6 @@ const server = app.listen(port, () => {
 });
 
 const shutdown = (signal) => {
-  console.log(`\nReceived ${signal}. Closing server...`);
-
   // Force exit if not closed within a timeout
   const timeout = setTimeout(() => {
     logger.warn("Forcefully shutting down...");

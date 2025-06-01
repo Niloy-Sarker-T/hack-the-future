@@ -14,6 +14,11 @@ class ApiService {
     return apiClient.post("/auth/logout");
   }
 
+  async getUserByUsername(username) {
+    const res = await apiClient.get(`/users?username=${username}`);
+    return res.data;
+  }
+
   //   async refreshToken() {
   //     return apiClient.post("/auth/refresh");
   //   }
@@ -56,6 +61,19 @@ class ApiService {
   //   async joinTeam(teamId) {
   //     return apiClient.post(`/teams/${teamId}/join`);
   //   }
+
+  async updateUserProfile(userId, userData) {
+    // userData is a plain object with fields to update
+    return apiClient.put(`/users/${userId}`, userData);
+  }
+
+  async uploadUserAvatar(userId, file) {
+    const formData = new FormData();
+    formData.append("image", file);
+    return apiClient.post(`/users/${userId}/avatar`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  }
 
   // Add more API methods as needed
 }

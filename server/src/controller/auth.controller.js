@@ -144,7 +144,7 @@ const login = asyncHandler(async (req, res) => {
 
   let token;
   try {
-    token = jwt.sign({ userId: user[0].id }, env.ACCESS_TOKEN_SECRET, {
+    token = jwt.sign({ id: user[0].id }, env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1d",
     });
   } catch (jwtError) {
