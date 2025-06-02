@@ -4,12 +4,14 @@ import {
   updateUserProfile,
   getUserProfileByUsername,
   getUserProfile,
+  updateUserRole,
 } from "../controller/users.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
 import upload from "../middleware/multer.middleware.js";
 import { validate } from "../middleware/validator.middleware.js";
 import {
   updateUserProfileSchema,
+  updateUserRoleSchema,
   uploadProfileImageSchema,
 } from "../validators/users.validator.js";
 
@@ -18,6 +20,8 @@ const router = Router();
 // Get user profile by username
 // /api/users?username=someusername
 router.get("/", getUserProfileByUsername);
+
+router.put("/role", verifyJWT, validate(updateUserRoleSchema), updateUserRole);
 
 // Get user profile by ID
 router.get("/:userId", getUserProfile);

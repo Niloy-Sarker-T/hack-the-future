@@ -44,3 +44,7 @@ export const uploadProfileImageSchema = z.object({
     })
     .optional(),
 });
+
+export const updateUserRoleSchema = z.object({
+  role: z.enum(["users", "organizer"]),
+});

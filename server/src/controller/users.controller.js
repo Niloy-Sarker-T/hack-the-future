@@ -152,9 +152,36 @@ const getUserProfile = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User profile retrieved successfully"));
 });
 
+// this end points update user roles to req.body.role value.
+const updateUserRole = asyncHandler(async (req, res) => {
+  const { role } = req.body;
+  const userId = req.user.id;
+
+  const updatedUser = await db
+    .update(usersTable)
+    .set({ role, updatedAt: new Date() })
+    .where(eq(usersTable.id, userId))
+    .returning({
+      id: usersTable.id,
+      fullName: usersTable.fullName,
+      userName: usersTable.userName,
+      role: usersTable.role,
+    });
+
+  if (updatedUser.length === 0) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedUser[0], "User role updated successfully")
+    );
+});
 export {
   uploadProfileImage,
   updateUserProfile,
   getUserProfileByUsername,
   getUserProfile,
+  updateUserRole,
 };

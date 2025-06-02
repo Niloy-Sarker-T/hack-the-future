@@ -15,9 +15,9 @@ import { teamsTable } from "./team-model.js";
 export const hackathonsTable = pgTable("hackathons", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }).notNull(),
-  description: text("description").notNull(),
-  requirements: text("requirements").notNull(),
-  judgingCriteria: text("judging_criteria").notNull(),
+  description: text("description"),
+  requirements: text("requirements"),
+  judgingCriteria: text("judging_criteria"),
   themes: jsonb("themes"), // <-- Use JSONB for themes array
   thumbnail: varchar("thumbnail", { length: 255 }),
   banner: varchar("banner", { length: 255 }),
@@ -25,7 +25,7 @@ export const hackathonsTable = pgTable("hackathons", {
   maxTeamSize: integer("max_team_size").default(4),
   minTeamSize: integer("min_team_size").default(1),
   allowSoloParticipation: boolean("allow_solo_participation").default(true), // NEW: Allow solo participants
-  organizeBy: varchar("organize_by", { length: 255 }).notNull(),
+  organizeBy: varchar("organize_by", { length: 255 }),
   createdBy: uuid("created_by")
     .references(() => usersTable.id)
     .notNull(),
