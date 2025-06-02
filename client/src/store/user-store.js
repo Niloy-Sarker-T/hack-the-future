@@ -25,6 +25,7 @@ const userStore = create(
           // On sucess, it will return only first name, last name, email and message
           // then show a toast message
           const res = await apiService.signup(userData);
+          return { success: true, data: res };
         } catch (error) {
           set({
             error: error.message,
@@ -34,7 +35,6 @@ const userStore = create(
         } finally {
           set({ isLoading: false });
         }
-        return res;
       },
 
       // Login action
