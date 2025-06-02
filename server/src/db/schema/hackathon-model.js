@@ -6,6 +6,7 @@ import {
   timestamp,
   integer,
   boolean,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 import { projectsTable } from "./project-model.js";
@@ -15,7 +16,9 @@ export const hackathonsTable = pgTable("hackathons", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  theme: varchar("theme", { length: 100 }),
+  requirements: text("requirements").notNull(),
+  judgingCriteria: text("judging_criteria").notNull(),
+  themes: jsonb("themes"), // <-- Use JSONB for themes array
   thumbnail: varchar("thumbnail", { length: 255 }),
   banner: varchar("banner", { length: 255 }),
   status: varchar("status", { length: 50 }).default("upcoming"), // 'draft', 'upcoming', 'ongoing', 'completed'
@@ -28,6 +31,8 @@ export const hackathonsTable = pgTable("hackathons", {
     .notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  registrationDeadline: timestamp("registration_deadline"),
+  submissionDeadline: timestamp("submission_deadline"),
 });
 
 export const hackathonParticipants = pgTable("hackathon_participants", {
@@ -77,6 +82,18 @@ export const eventsTable = pgTable("events", {
   id: uuid("id").primaryKey().defaultRandom(),
   hackathonId: uuid("hackathon_id").references(() => hackathonsTable.id),
   eventName: varchar("event_name", { length: 100 }).notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+});
+
+export const judgesTable = pgTable("judges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  hackathonId: uuid("hackathon_id").references(() => hackathonsTable.id),
+  userId: uuid("user_id").references(() => usersTable.id),
+  // if some judges are not part of the users table, what can i do?
+  // For example, if judges are external experts not registered on the platform
+  // you can use a text field for their email or name
+  externalJudgeEmail: varchar("external_judge_email", { length: 255 }),
+  role: varchar("role", { length: 50 }).default("judge"), // 'judge', 'mentor', etc.
+  assignedAt: timestamp("assigned_at").defaultNow(),
 });

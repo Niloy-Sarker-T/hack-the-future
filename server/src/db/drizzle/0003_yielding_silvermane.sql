@@ -1,1 +1,0 @@
-ALTER TABLE "users" ALTER COLUMN "socials_links" DROP DEFAULT;

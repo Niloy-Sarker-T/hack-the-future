@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1746890708666,
-      "tag": "0000_blushing_night_thrasher",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746892088322,
-      "tag": "0001_pink_havok",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1748194177414,
-      "tag": "0002_faithful_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1748194252030,
-      "tag": "0003_yielding_silvermane",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1748244249964,
-      "tag": "0004_sticky_zaladane",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1748285852495,
-      "tag": "0005_sweet_frightful_four",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1748497051386,
-      "tag": "0006_demonic_chimera",
+      "when": 1748850316049,
+      "tag": "0000_daily_onslaught",
       "breakpoints": true
     }
   ]
