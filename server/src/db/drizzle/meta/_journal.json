@@ -8,6 +8,20 @@
       "when": 1748850316049,
       "tag": "0000_daily_onslaught",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748889777207,
+      "tag": "0001_silent_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1748894706440,
+      "tag": "0002_milky_sasquatch",
+      "breakpoints": true
     }
   ]
 }

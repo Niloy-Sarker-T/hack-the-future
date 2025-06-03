@@ -23,7 +23,7 @@ function HeroSection() {
             variant="outline"
             className="md:w-44 md:h-10 px-4 hover:bg-accent/80 hover:scale-105 hover:rotate-[1deg] hover:shadow-lg hover:-translate-x-2 transition-transform duration-200"
           >
-            <Link to="/organize">Organize</Link>
+            <Link to="/hackathons/create-hackathon">Organize</Link>
           </Button>
         </div>
       </div>

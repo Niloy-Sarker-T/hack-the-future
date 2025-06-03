@@ -9,6 +9,8 @@ import PortfolioPage from "./pages/portfolio/ProfolioPage";
 import OtherUserPortfolioPage from "./pages/portfolio/OtherUserPortfolioPage";
 import EditProfilePage from "./pages/portfolio/EditProfilePage";
 import ProtectedRoute from "./components/layout/protected-layout";
+import CreateHackathonPage from "./pages/hackathons/create-hackathon";
+import ManageHackathonsPage from "./pages/hackathons/manage-hackathons";
 
 function App() {
   return (
@@ -27,6 +29,18 @@ function App() {
             {/* Add protected routes here */}
             <Route path="/edit-profile" element={<EditProfilePage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route
+              path="/hackathons/create-hackathon"
+              element={<CreateHackathonPage />}
+            />
+            <Route
+              path="/hackathons/:hackathonId/edit"
+              element={<CreateHackathonPage />}
+            />
+            <Route
+              path="/manage-hackathon"
+              element={<ManageHackathonsPage />}
+            />
           </Route>
           {/* Others */}
           <Route path="*" element={<NotFoundPage />} />

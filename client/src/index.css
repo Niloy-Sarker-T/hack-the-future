@@ -123,3 +123,15 @@
     @apply h-full w-full;
   }
 }
+
+@layer utilities {
+  .animate-fade-in {
+    @apply opacity-0;
+    animation: fadeIn 0.6s forwards;
+  }
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+}

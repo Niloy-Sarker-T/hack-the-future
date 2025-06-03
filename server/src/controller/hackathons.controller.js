@@ -7,9 +7,10 @@ import {
   hackathonParticipants,
   //   teamsTable,
 } from "../db/schema/index.js";
-import { eq, and, gte, or } from "drizzle-orm";
+import { eq, and, gte, or, count } from "drizzle-orm";
 import upload from "../middleware/multer.middleware.js";
 import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
+import { sql, ilike } from "drizzle-orm";
 
 export const createHackathon = asyncHandler(async (req, res) => {
   const {
@@ -53,7 +54,9 @@ export const createHackathon = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, hackathon, "Hackathon created successfully"));
+    .json(
+      new ApiResponse(201, { ...hackathon }, "Hackathon created successfully")
+    );
 });
 
 export const getAllHackathons = asyncHandler(async (req, res) => {
@@ -62,36 +65,80 @@ export const getAllHackathons = asyncHandler(async (req, res) => {
 
   const offset = (page - 1) * limit;
 
-  let query = db.select().from(hackathonsTable);
-
-  if (status) {
-    query = query.where(eq(hackathonsTable.status, status));
-  }
-  if (search) {
-    query = query.where(hackathonsTable.title.ilike(`%${search}%`));
-  }
-  // Handle themes[] as array or string
+  // Normalize themes[] from query (?themes[]=A&themes[]=B)
   if (themes) {
-    if (!Array.isArray(themes)) themes = [themes];
-    query = query.where(hackathonsTable.themes.overlaps(themes));
+    if (typeof themes === "string") {
+      themes = [themes];
+    }
+    // decode URI components (in case of spaces, slashes, etc.)
+    themes = themes.map((t) => decodeURIComponent(t));
   }
 
-  const hackathons = await query
-    .limit(Number(limit))
-    .offset(Number(offset))
-    .returning({
+  let query = db
+    .select({
       id: hackathonsTable.id,
       title: hackathonsTable.title,
-      theme: hackathonsTable.theme,
+      themes: hackathonsTable.themes,
       organizeBy: hackathonsTable.organizeBy,
       createdAt: hackathonsTable.createdAt,
       updatedAt: hackathonsTable.updatedAt,
       registrationDeadline: hackathonsTable.registrationDeadline,
       submissionDeadline: hackathonsTable.submissionDeadline,
-    });
+      status: hackathonsTable.status,
+      allowSoloParticipation: hackathonsTable.allowSoloParticipation,
+      createdBy: hackathonsTable.createdBy,
+      thumbnail: hackathonsTable.thumbnail,
+    })
+    .from(hackathonsTable);
+
+  if (status) {
+    query = query.where(eq(hackathonsTable.status, status));
+  }
+  if (search) {
+    query = query.where(ilike(hackathonsTable.title, `%${search}%`));
+  }
+  // Handle themes[] as array for PostgreSQL ARRAY column
+  if (themes && Array.isArray(themes) && themes.length > 0) {
+    // Use raw SQL for overlaps operator (PostgreSQL)
+    query = query.where(sql`${hackathonsTable.themes} && ${themes}`);
+  }
+
+  const hackathons = await query
+    .limit(Number(limit))
+    .offset(Number(offset))
+    .orderBy(hackathonsTable.updatedAt, "desc");
+
+  if (hackathons.length === 0) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, [], "No hackathons found"));
+  }
+
+  // Add total count for pagination
+  const totalCount = await db
+    .select({ count: count(hackathonsTable.id) })
+    .from(hackathonsTable)
+    .where(
+      and(
+        status ? eq(hackathonsTable.status, status) : true,
+        search ? ilike(hackathonsTable.title, `%${search}%`) : true,
+        themes && themes.length > 0
+          ? sql`${hackathonsTable.themes} && ${themes}`
+          : true
+      )
+    );
+  const total = totalCount[0]?.count ?? 0;
+  const response = {
+    hackathons,
+    total,
+    page: Number(page),
+    limit: Number(limit),
+  };
   return res
     .status(200)
-    .json(new ApiResponse(200, hackathons, "Hackathons fetched successfully"));
+    .json(
+      new ApiResponse(200, { ...response }, "Hackathons fetched successfully")
+    );
 });
 
 export const joinHackathon = asyncHandler(async (req, res) => {
@@ -159,7 +206,9 @@ export const joinHackathon = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, participant, "Successfully joined hackathon"));
+    .json(
+      new ApiResponse(201, { ...participant }, "Successfully joined hackathon")
+    );
 });
 
 export const getHackathonById = asyncHandler(async (req, res) => {
@@ -177,7 +226,13 @@ export const getHackathonById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, hackathon[0], "Hackathon fetched successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { ...hackathon[0] },
+        "Hackathon fetched successfully"
+      )
+    );
 });
 
 export const getHackathonParticipants = asyncHandler(async (req, res) => {
@@ -203,7 +258,11 @@ export const getHackathonParticipants = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, participants, "Participants fetched successfully")
+      new ApiResponse(
+        200,
+        { ...participants },
+        "Participants fetched successfully"
+      )
     );
 });
 
@@ -255,7 +314,11 @@ export const updateHackathon = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, updatedHackathon, "Hackathon updated successfully")
+      new ApiResponse(
+        200,
+        { ...updatedHackathon },
+        "Hackathon updated successfully"
+      )
     );
 });
 
@@ -312,7 +375,11 @@ export const getUpcomingHackathons = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, upcomingHackathons, "Upcoming hackathons fetched")
+      new ApiResponse(
+        200,
+        { ...upcomingHackathons },
+        "Upcoming hackathons fetched"
+      )
     );
 });
 
@@ -343,7 +410,9 @@ export const getEndHackathons = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, endedHackathons, "Ended hackathons fetched"));
+    .json(
+      new ApiResponse(200, { ...endedHackathons }, "Ended hackathons fetched")
+    );
 });
 
 // Get ongoing hackathons (status: "ongoing" or current date between registrationDeadline and submissionDeadline)
@@ -377,7 +446,11 @@ export const getOngoingHackathons = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, ongoingHackathons, "Ongoing hackathons fetched")
+      new ApiResponse(
+        200,
+        { ...ongoingHackathons },
+        "Ongoing hackathons fetched"
+      )
     );
 });
 

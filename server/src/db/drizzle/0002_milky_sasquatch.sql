@@ -1,0 +1,1 @@
+ALTER TABLE "hackathons" ALTER COLUMN "status" SET DEFAULT 'draft';

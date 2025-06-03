@@ -21,7 +21,7 @@ export const hackathonsTable = pgTable("hackathons", {
   themes: jsonb("themes"), // <-- Use JSONB for themes array
   thumbnail: varchar("thumbnail", { length: 255 }),
   banner: varchar("banner", { length: 255 }),
-  status: varchar("status", { length: 50 }).default("upcoming"), // 'draft', 'upcoming', 'ongoing', 'completed'
+  status: varchar("status", { length: 50 }).default("draft"), // 'draft', 'upcoming', 'ongoing', 'completed'
   maxTeamSize: integer("max_team_size").default(4),
   minTeamSize: integer("min_team_size").default(1),
   allowSoloParticipation: boolean("allow_solo_participation").default(true), // NEW: Allow solo participants
