@@ -4,9 +4,18 @@ import { Badge } from "@/components/ui/badge";
 const FALLBACK_THUMBNAIL =
   "https://placehold.co/600x400?text=Hackathon+Thumbnail";
 
-export default function HackathonCard({ hackathon }) {
+export default function HackathonCard({ hackathon, linkto }) {
   return (
-    <Card className="mb-6 py-0 hover:scale-[1.02] transition-transform duration-200 shadow-md">
+    <Card
+      id={hackathon.id}
+      className="mb-6 py-0 hover:scale-[1.02] transition-transform duration-200 shadow-md"
+      onClick={() => {
+        window.location.href = `${linkto || `/hackathons/${hackathon.id}`}`;
+      }}
+      role="button"
+      aria-label={`View details for ${hackathon.title}`}
+      style={{ cursor: "pointer" }}
+    >
       <CardContent className="p-0">
         <img
           src={hackathon.thumbnail || FALLBACK_THUMBNAIL}

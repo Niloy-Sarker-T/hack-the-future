@@ -8,9 +8,11 @@ const useHackathonStore = create((set) => ({
   filters: { search: "", themes: [], status: "" },
   page: 1,
   pageSize: 9,
+  currentHackathon: null,
 
   setFilters: (filters) => set({ filters, page: 1 }),
   setPage: (page) => set({ page }),
+  setCurrentHackathon: (hackathon) => set({ currentHackathon: hackathon }),
 
   fetchHackathons: async () => {
     set({ loading: true });
@@ -29,26 +31,54 @@ const useHackathonStore = create((set) => ({
         total: res.total || 0,
         loading: false,
       });
-    } catch (e) {
+    } catch (error) {
+      console.error("Error fetching hackathons:", error);
       set({ hackathons: [], total: 0, loading: false });
     }
   },
 
-  updateHackathons: async (hackathon) => {
-    //this function call api to update hackathons
+  updateHackathon: async (hackathonId, data) => {
     set({ loading: true });
     try {
-      // api hit to hackathons/:hackathonId
-      // this will update the hackathons in the database
-      const res = await apiClient.put(`/hackathons/${hackathon.id}`, {
-        hackathon,
-      });
+      const res = await apiClient.put(`/hackathons/${hackathonId}`, data);
       if (res.status === 200) {
         set({ loading: false });
+        return { success: true, data: res.data };
       } else {
-        set({ loading: false });
+        throw new Error("Failed to update hackathon");
       }
-    } catch (e) {
+    } catch (error) {
+      console.error("Error updating hackathon:", error);
+      set({ loading: false });
+      return { success: false, error: error.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  uploadImage: async (file, type, hackathonId) => {
+    set({ loading: true });
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", type);
+      
+      const res = await apiClient.post(`/hackathons/${hackathonId}/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      if (res.status === 200) {
+        setCurrentHackathon({...currentHackathon, [type]: res.data.url})
+        return { success: true, data: res.data };
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return { success: false, error: error.message };
+    } finally {
       set({ loading: false });
     }
   },

@@ -1,71 +1,88 @@
-# hack-the-future - Hackathon Organization Platform
+# Hack the Future — Project Overview
 
-hack-the-future is a **full-stack** platform designed to simplify the organization, participation, and judging of hackathons and innovation challenges. It supports multi-disciplinary events, team formation, sponsorships, and more.
+## 🚀 Overview
 
----
-
-## Key Features
-
-- **Authentication**: Users can register and log in to access the platform.
-- **Event Management**: Create, manage, and track hackathons or innovation challenges.
-- **Team Formation**: AI-powered suggestions for forming balanced teams.
-- **Submission & Judging**: Easy project submission and scoring system for judges.
-- **Sponsorships**: Manage sponsors and track sponsorship contributions.
-- **Collaboration Tools**: Real-time chat and file sharing for teams.
-- **User Roles**: Separate workflows for organizers, participants, and judges.
-- **Scalable Design**: Built to handle small-scale hackathons to large innovation challenges.
+**Hack the Future** is a full-stack web platform for organizing, managing, and participating in hackathons across Bangladesh. It empowers users to create, discover, and join hackathons, manage their portfolios, connect with the developer community, and collaborate in real time.
 
 ---
 
-## Tech Stack
+## ✨ Key Functionalities
 
-### Frontend
+### 1. **Authentication & User Management**
+- Secure signup, login, and JWT-based authentication.
+- User roles: Participant, Organizer.
+- Profile editing, avatar upload, and portfolio management.
 
-- **Framework**: React.js
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand (optional)
-- **Real-Time Communication**: Socket.IO
+### 2. **Social Features**
+- **Follower & Follow Back System:** Users can follow each other and build their network.
+- **Messaging:** One-to-one direct messaging between users.
+- **Group Messaging:** Create and participate in group chats for teams or hackathons.
 
-### Backend
+### 3. **Hackathon Discovery**
+- Browse and search hackathons by name, theme, and status.
+- Responsive, animated masonry grid for hackathon cards.
+- Filter by themes (e.g., AI, Web, Health), status (upcoming, ongoing, ended), and more.
 
-- **Framework**: Node.js (Express.js)
-- **Database**: PostgreSQL
-- **Authentication**: JWT (JSON Web Tokens)
-- **API Documentation**: Swagger/OpenAPI
+### 4. **Hackathon Creation & Management**
+- Multi-step, modern form for organizers to create hackathons:
+  - **Step 1:** Basic Info (title, organizer, banners, thumbnail)
+  - **Step 2:** Description, Requirements, Judging Criteria (markdown)
+  - **Step 3:** Team Rules (min/max size, solo participation)
+  - **Step 4:** Timeline (registration/submission deadlines)
+  - **Step 5:** Review & Submit (preview before publishing)
+- Image upload for banners and thumbnails.
+- Edit and update hackathon details with a sticky sidebar stepper.
 
-### DevOps & Hosting
+### 5. **Manage Hackathons Dashboard**
+- View all created hackathons in a responsive, paginated masonry grid.
+- Filter and search hackathons by theme, status, and name.
+- Mobile-friendly filter drawer and multi-select theme filtering.
 
-- **Cloud Storage**: AWS S3 (for file uploads)
-- **Deployment**: AWS / Heroku / Docker
-- **CI/CD Pipeline**: GitHub Actions
-- **Monitoring**: New Relic / Datadog
+### 6. **Participation, Projects & Portfolio**
+- Join hackathons as a participant.
+- Add and submit projects to hackathons.
+- Showcase projects and achievements in a personal portfolio.
+- View other users’ portfolios.
+
+### 7. **Judging System**
+- Hackathon submissions can be judged by assigned judges.
+- Intuitive UI for judges to review, score, and provide feedback on submitted projects.
+
+### 8. **Admin & Organizer Tools**
+- Role management (upgrade to organizer).
+- Manage hackathon submissions, teams, and judging.
+
+### 9. **Real-time Notifications and Chat**
+- Receive instant notifications for messages, team invites, and hackathon updates.
+- Real-time chat for both direct and group messaging.
+
+### 10. **Team Formation and Collaboration**
+- Tools for forming teams, inviting members, and collaborating on projects.
+- Group chat and shared resources for team coordination.
+
+### 11. **Advanced Judging and Scoring**
+- Flexible scoring modules for judges.
+- Customizable judging criteria and transparent results.
+
+### 12. **Analytics Dashboard for Organizers**
+- Visual analytics and insights for hackathon organizers.
+- Track participation, submissions, and engagement metrics.
 
 ---
 
-## Project Structure
+## 🛠️ Tech Stack
 
-The project is divided into two main directories:
-
-1. **Frontend**:
-
-   - Located in the `client` folder.
-   - Built using React.js and Tailwind CSS.
-   - Handles user interface and interactions.
-
-2. **Backend**:
-   - Located in the `server` folder.
-   - Built using Node.js and Express.js.
-   - Handles API endpoints, database operations, and business logic.
+- **Frontend:** React, shadcn/ui, TailwindCSS, Zustand (state), React Router
+- **Backend:** Node.js, Express, Drizzle ORM, PostgreSQL
+- **Authentication:** JWT
+- **Other:** File/image upload, Markdown support, Responsive design
 
 ---
 
-## Getting Started
+## 📱 Responsive Design
 
-### Installation
+- Fully responsive layouts for desktop and mobile.
+- Sticky sidebar navigation for desktop, collapsible drawer for mobile.
+- Animated transitions and modern UI components.
 
-#### 1. Clone the Repository
-
-```bash
-git clone https://github.com/a-z-nath/hack-the-future.git
-cd hack-the-future
-```
+---

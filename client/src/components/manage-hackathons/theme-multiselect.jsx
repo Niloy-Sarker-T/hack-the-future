@@ -45,7 +45,6 @@ export default function ThemesMultiSelect({ options }) {
       setFilters({ ...filters, themes });
     }
   };
-  console.log(filters);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

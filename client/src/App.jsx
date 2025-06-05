@@ -11,6 +11,7 @@ import EditProfilePage from "./pages/portfolio/EditProfilePage";
 import ProtectedRoute from "./components/layout/protected-layout";
 import CreateHackathonPage from "./pages/hackathons/create-hackathon";
 import ManageHackathonsPage from "./pages/hackathons/manage-hackathons";
+import EditHackathonPage from "./pages/hackathons/edit-hacakthon";
 
 function App() {
   return (
@@ -33,9 +34,11 @@ function App() {
               path="/hackathons/create-hackathon"
               element={<CreateHackathonPage />}
             />
+          </Route>
+          <Route element={<ProtectedRoute role={"organizer"} />}>
             <Route
               path="/hackathons/:hackathonId/edit"
-              element={<CreateHackathonPage />}
+              element={<EditHackathonPage />}
             />
             <Route
               path="/manage-hackathon"

@@ -9,7 +9,11 @@ export default function HackathonMasonryGrid({ hackathons }) {
         </div>
       )}
       {hackathons.map((h) => (
-        <HackathonCard key={h.id} hackathon={h} />
+        <HackathonCard
+          key={h.id}
+          hackathon={h}
+          linkto={`/hackathons/${h.id}/edit`}
+        />
       ))}
     </div>
   );
