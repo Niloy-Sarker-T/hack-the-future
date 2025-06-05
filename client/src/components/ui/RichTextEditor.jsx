@@ -162,12 +162,13 @@ export default function RichTextEditor({ content, onChange }) {
           <LinkIcon className="w-4 h-4" />
         </Button>
       </div>
-
-      <EditorContent
-        onClick={() => editor?.chain().focus().run()}
-        editor={editor}
-        className="min-h-[400px] max-h-[400px] box-decoration-clone"
-      />
+      <div className="relative min-h-[400px] max-h-[500px] overflow-y-auto">
+        <EditorContent
+          onClick={() => editor?.chain().focus().run()}
+          editor={editor}
+          className="min-h-[400px] h-[400px] px-4 py-2 outline-none text-ellipsis box-decoration-clone"
+        />
+      </div>
 
       <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
         <DialogContent>

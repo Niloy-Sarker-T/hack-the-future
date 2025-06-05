@@ -17,7 +17,9 @@ export default function EditHackathonPage() {
     useHackathonStore();
   const user = userStore((state) => state.user);
 
-  const [formData, setFormData] = useState();
+  const [formData, setFormData] = useState({
+    ...currentHackathon,
+  });
   const { hackathonId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
