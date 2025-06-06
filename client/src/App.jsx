@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/layout/protected-layout";
 import CreateHackathonPage from "./pages/hackathons/create-hackathon";
 import ManageHackathonsPage from "./pages/hackathons/manage-hackathons";
 import EditHackathonPage from "./pages/hackathons/edit-hacakthon";
+import ChatPage from "./pages/chat";
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             {/* Add protected routes here */}
-            <Route path="/edit-profile" element={<EditProfilePage />} />  /chat, chat.jsx -- er chat page
+            <Route path="/chat" element={<ChatPage />} />  /chat, chat.jsx -- er chat page
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route
               path="/hackathons/create-hackathon"
