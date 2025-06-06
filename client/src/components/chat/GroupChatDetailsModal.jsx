@@ -1,163 +1,223 @@
-import React, { useState } from "react";
-import { EllipsisVerticalIcon, PaperClipIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import moment from "moment";
-import { classNames, getChatObjectMetadata } from "../../utils";
-import { Dropdown } from "@/components/ui/dropdown"; // Adjust path if needed
+// Controller functions (commented out for clarity)
+/*
+const handleGroupNameUpdate = async () => { ... }
+const getUsers = async () => { ... }
+const deleteGroupChat = async () => { ... }
+const removeParticipant = async (participantId: string) => { ... }
+const addParticipant = async () => { ... }
+const fetchGroupInformation = async () => { ... }
+const handleClose = () => { ... }
+useEffect(() => { ... }, [open]);
+*/
 
 /**
- * GroupChatDetailsModal component for rendering a chat list item with actions and details.
+ * GroupChatDetailsModal component for group chat management and details.
  *
  * @param {Object} props
- * @param {Object} props.chat - Chat object containing chat details.
- * @param {Object} props.user - Current user object.
- * @param {boolean} props.isActive - Whether this chat is currently active.
- * @param {Function} props.onClick - Callback when chat is clicked.
- * @param {number} props.unreadCount - Number of unread messages.
- * @param {Function} props.onChatDelete - Callback to delete the chat.
+ * @param {boolean} props.open - Whether the modal is open.
+ * @param {Function} props.onClose - Function to close the modal.
+ * @param {string} props.chatId - The group chat ID.
+ * @param {Function} props.onGroupDelete - Callback when group is deleted.
  */
-export default function GroupChatDetailsModal({
-  chat,
-  user,
-  isActive,
-  onClick,
-  unreadCount,
-  onChatDelete,
-}) {
-  // State to control group info modal visibility
-  const [openGroupInfo, setOpenGroupInfo] = useState(false);
-  // State to control dropdown options visibility
-  const [openOptions, setOpenOptions] = useState(false);
-
-  // Handler to delete a chat
-  const deleteChat = async () => {
-    try {
-      await onChatDelete(chat._id);
-    } catch (error) {
-      console.error("Error deleting chat:", error);
-    }
-  };
-
-  // Guard clause for missing chat or user
-  if (!chat || !user) return null;
+const GroupChatDetailsModal = ({
+  open,
+  onClose,
+  chatId,
+  onGroupDelete,
+}) => {
+  const [groupDetails, setGroupDetails] = useState(null);  }
+    const [renamingGroup, setRenamingGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState("");
+    const [addingParticipant, setAddingParticipant] = useState(false);
+    const [participantToBeAdded, setParticipantToBeAdded] = useState("");
+    const [users, setUsers] = useState([]);
+    const { user } = useAuth();
+    const { socket } = useSocket();
+    const { getGroupChat, updateGroupChat, deleteGroupChat, addParticipantToGroup, removeParticipantFromGroup } = useChat();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
   return (
-    <>
-      {/* Modal for group chat details */}
-      <GroupChatDetailsModal
-        open={openGroupInfo}
-        onClose={() => setOpenGroupInfo(false)}
-        chatId={chat._id}
-        onGroupDelete={onChatDelete}
-      />
-      {/* Main chat item block */}
-      <div
-        role="button"
-        onClick={() => onClick(chat)}
-        onMouseLeave={() => setOpenOptions(false)}
-        className={classNames(
-          "group p-4 my-2 flex justify-between gap-3 items-start cursor-pointer rounded-3xl hover:bg-secondary",
-          isActive ? "border-[1px] border-zinc-500 bg-secondary" : "",
-          unreadCount > 0
-            ? "border-[1px] border-success bg-success/20 font-bold"
-            : ""
-        )}
-      >
-        {/* Dropdown for chat actions */}
-        <Dropdown open={openOptions} onOpenChange={setOpenOptions}>
-          <Dropdown.Trigger asChild>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenOptions(!openOptions);
-              }}
-              className="self-center p-1 relative"
-            >
-              <EllipsisVerticalIcon className="h-6 group-hover:w-6 group-hover:opacity-100 w-0 opacity-0 transition-all ease-in-out duration-100 text-zinc-300" />
-            </button>
-          </Dropdown.Trigger>
-          <Dropdown.Content className="z-20 text-left absolute bottom-0 translate-y-full text-sm w-52 bg-dark rounded-2xl p-2 shadow-md border-[1px] border-secondary">
-            {chat.isGroupChat ? (
-              <Dropdown.Item
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setOpenGroupInfo(true);
-                }}
-                className="p-4 w-full rounded-lg inline-flex items-center hover:bg-secondary"
-              >
-                <InformationCircleIcon className="h-4 w-4 mr-2" /> About group
-              </Dropdown.Item>
-            ) : (
-              <Dropdown.Item
-                onSelect={(e) => {
-                  e.preventDefault();
-                  const ok = confirm("Are you sure you want to delete this chat?");
-                  if (ok) {
-                    deleteChat();
-                  }
-                }}
-                className="p-4 text-danger rounded-lg w-full inline-flex items-center hover:bg-secondary"
-              >
-                <TrashIcon className="h-4 w-4 mr-2" />
-                Delete chat
-              </Dropdown.Item>
-            )}
-          </Dropdown.Content>
-        </Dropdown>
-        {/* Chat avatar(s) */}
-        <div className="flex justify-center items-center flex-shrink-0">
-          {chat.isGroupChat ? (
-            <div className="w-12 relative h-12 flex-shrink-0 flex justify-start items-center flex-nowrap">
-              {chat.participants.slice(0, 3).map((participant, i) => (
-                <img
-                  key={participant._id}
-                  src={participant.avatar.url}
-                  className={classNames(
-                    "w-8 h-8 border-[1px] border-white rounded-full absolute outline outline-4 outline-dark group-hover:outline-secondary",
-                    i === 0
-                      ? "left-0 z-[3]"
-                      : i === 1
-                      ? "left-2.5 z-[2]"
-                      : i === 2
-                      ? "left-[18px] z-[1]"
-                      : ""
-                  )}
-                />
-              ))}
+    <Dialog open={open} onOpenChange={onClose}>
+      <Dialog.Content className="max-w-2xl bg-secondary p-0">
+        <div className="flex h-full flex-col overflow-y-scroll py-6">
+          <div className="px-4 sm:px-6">
+            <div className="flex items-start justify-between">
+              <div className="ml-3 flex h-7 items-center">
+                <Dialog.Close asChild>
+                  <button
+                    type="button"
+                    className="relative rounded-md bg-secondary text-zinc-400 hover:text-zinc-500 focus:outline-none"
+                    onClick={onClose}
+                  >
+                    <span className="absolute -inset-2.5" />
+                    <span className="sr-only">Close panel</span>
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                  </button>
+                </Dialog.Close>
+              </div>
             </div>
-          ) : (
-            <img
-              src={getChatObjectMetadata(chat, user).avatar}
-              className="w-12 h-12 rounded-full"
-            />
-          )}
-        </div>
-        {/* Chat title and last message */}
-        <div className="w-full">
-          <p className="truncate-1">
-            {getChatObjectMetadata(chat, user).title}
-          </p>
-          <div className="w-full inline-flex items-center text-left">
-            {chat.lastMessage && chat.lastMessage.attachments.length > 0 ? (
-              <PaperClipIcon className="text-white/50 h-3 w-3 mr-2 flex flex-shrink-0" />
-            ) : null}
-            <small className="text-white/50 truncate-1 text-sm text-ellipsis inline-flex items-center">
-              {getChatObjectMetadata(chat, user).lastMessage}
-            </small>
+          </div>
+          <div className="relative mt-6 flex-1 px-4 sm:px-6">
+            <div className="flex flex-col justify-center items-start">
+              <div className="flex pl-16 justify-center items-center relative w-full h-max gap-3">
+                {groupDetails?.participants.slice(0, 3).map((p) => (
+                  <img
+                    className="w-24 h-24 -ml-16 rounded-full outline outline-4 outline-secondary"
+                    key={p._id}
+                    src={p.avatar.url}
+                    alt="avatar"
+                  />
+                ))}
+                {groupDetails?.participants &&
+                groupDetails?.participants.length > 3 ? (
+                  <p>+{groupDetails?.participants.length - 3}</p>
+                ) : null}
+              </div>
+              <div className="w-full flex flex-col justify-center items-center text-center">
+                {renamingGroup ? (
+                  <div className="w-full flex justify-center items-center mt-5 gap-2">
+                    <Input
+                      placeholder="Enter new group name..."
+                      value={newGroupName}
+                      onChange={(e) => setNewGroupName(e.target.value)}
+                    />
+                    <Button severity="primary" onClick={handleGroupNameUpdate}>
+                      Save
+                    </Button>
+                    <Button
+                      severity="secondary"
+                      onClick={() => setRenamingGroup(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="w-full inline-flex justify-center items-center text-center mt-5">
+                    <h1 className="text-2xl font-semibold truncate-1">
+                      {groupDetails?.name}
+                    </h1>
+                    {groupDetails?.admin === user?._id ? (
+                      <button onClick={() => setRenamingGroup(true)}>
+                        <PencilIcon className="w-5 h-5 ml-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                )}
+                <p className="mt-2 text-zinc-400 text-sm">
+                  Group · {groupDetails?.participants.length} participants
+                </p>
+              </div>
+              <hr className="border-[0.1px] border-zinc-600 my-5 w-full" />
+              <div className="w-full">
+                <p className="inline-flex items-center">
+                  <UserGroupIcon className="h-6 w-6 mr-2" />{" "}
+                  {groupDetails?.participants.length} Participants
+                </p>
+                <div className="w-full">
+                  {groupDetails?.participants?.map((part) => (
+                    <React.Fragment key={part._id}>
+                      <div className="flex justify-between items-center w-full py-4">
+                        <div className="flex justify-start items-start gap-3 w-full">
+                          <img
+                            className="h-12 w-12 rounded-full"
+                            src={part.avatar.url}
+                          />
+                          <div>
+                            <p className="text-white font-semibold text-sm inline-flex items-center w-full">
+                              {part.username}{" "}
+                              {part._id === groupDetails.admin ? (
+                                <span className="ml-2 text-[10px] px-4 bg-success/10 border-[0.1px] border-success rounded-full text-success">
+                                  admin
+                                </span>
+                              ) : null}
+                            </p>
+                            <small className="text-zinc-400">
+                              {part.email}
+                            </small>
+                          </div>
+                        </div>
+                        {groupDetails.admin === user?._id ? (
+                          <div>
+                            <Button
+                              onClick={() => {
+                                const ok = confirm(
+                                  "Are you sure you want to remove " +
+                                    user.username +
+                                    " ?"
+                                );
+                                if (ok) {
+                                  removeParticipant(part._id || "");
+                                }
+                              }}
+                              size="small"
+                              severity="danger"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
+                      <hr className="border-[0.1px] border-zinc-600 my-1 w-full" />
+                    </React.Fragment>
+                  ))}
+                  {groupDetails?.admin === user?._id ? (
+                    <div className="w-full my-5 flex flex-col justify-center items-center gap-4">
+                      {!addingParticipant ? (
+                        <Button
+                          onClick={() => setAddingParticipant(true)}
+                          fullWidth
+                          severity="primary"
+                        >
+                          <UserPlusIcon className="w-5 h-5 mr-1" /> Add participant
+                        </Button>
+                      ) : (
+                        <div className="w-full flex justify-start items-center gap-2">
+                          <Select
+                            placeholder="Select a user to add..."
+                            value={participantToBeAdded}
+                            options={users.map((user) => ({
+                              label: user.username,
+                              value: user._id,
+                            }))}
+                            onChange={({ value }) => setParticipantToBeAdded(value)}
+                          />
+                          <Button onClick={() => addParticipant()}>+ Add</Button>
+                          <Button
+                            severity="secondary"
+                            onClick={() => {
+                              setAddingParticipant(false);
+                              setParticipantToBeAdded("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                      <Button
+                        fullWidth
+                        severity="danger"
+                        onClick={() => {
+                          const ok = confirm(
+                            "Are you sure you want to delete this group?"
+                          );
+                          if (ok) {
+                            deleteGroupChat();
+                          }
+                        }}
+                      >
+                        <TrashIcon className="w-5 h-5 mr-1" /> Delete group
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        {/* Chat meta: time and unread count */}
-        <div className="flex text-white/50 h-full text-sm flex-col justify-between items-end">
-          <small className="mb-2 inline-flex flex-shrink-0 w-max">
-            {moment(chat.updatedAt).add("TIME_ZONE", "hours").fromNow(true)}
-          </small>
-          {unreadCount <= 0 ? null : (
-            <span className="bg-success h-2 w-2 aspect-square flex-shrink-0 p-2 text-white text-xs rounded-full inline-flex justify-center items-center">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </div>
-      </div>
-    </>
+      </Dialog.Content>
+    </Dialog>
   );
-}
+;
+
+export default GroupChatDetailsModal;
