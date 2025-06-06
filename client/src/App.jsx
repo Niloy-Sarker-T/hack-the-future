@@ -28,7 +28,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             {/* Add protected routes here */}
-            <Route path="/edit-profile" element={<EditProfilePage />} />  /chat, cha.jsx -- er chat page
+            <Route path="/edit-profile" element={<EditProfilePage />} />  /chat, chat.jsx -- er chat page
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route
               path="/hackathons/create-hackathon"
