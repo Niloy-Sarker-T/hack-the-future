@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import { EllipsisVerticalIcon, PaperClipIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import moment from "moment";
-import GroupChatDetailsModal from "./GroupChatDetailsModal";
 import { classNames, getChatObjectMetadata } from "../../utils";
 import { Dropdown } from "@/components/ui/dropdown"; // Adjust path if needed
 
 /**
- * ChatItem component for rendering a chat list item with actions and details.
+ * GroupChatDetailsModal component for rendering a chat list item with actions and details.
  *
  * @param {Object} props
  * @param {Object} props.chat - Chat object containing chat details.
@@ -17,7 +16,7 @@ import { Dropdown } from "@/components/ui/dropdown"; // Adjust path if needed
  * @param {number} props.unreadCount - Number of unread messages.
  * @param {Function} props.onChatDelete - Callback to delete the chat.
  */
-export default function ChatItem({
+export default function GroupChatDetailsModal({
   chat,
   user,
   isActive,
@@ -44,12 +43,14 @@ export default function ChatItem({
 
   return (
     <>
+      {/* Modal for group chat details */}
       <GroupChatDetailsModal
         open={openGroupInfo}
         onClose={() => setOpenGroupInfo(false)}
         chatId={chat._id}
         onGroupDelete={onChatDelete}
       />
+      {/* Main chat item block */}
       <div
         role="button"
         onClick={() => onClick(chat)}
@@ -62,6 +63,7 @@ export default function ChatItem({
             : ""
         )}
       >
+        {/* Dropdown for chat actions */}
         <Dropdown open={openOptions} onOpenChange={setOpenOptions}>
           <Dropdown.Trigger asChild>
             <button
@@ -102,6 +104,7 @@ export default function ChatItem({
             )}
           </Dropdown.Content>
         </Dropdown>
+        {/* Chat avatar(s) */}
         <div className="flex justify-center items-center flex-shrink-0">
           {chat.isGroupChat ? (
             <div className="w-12 relative h-12 flex-shrink-0 flex justify-start items-center flex-nowrap">
@@ -129,6 +132,7 @@ export default function ChatItem({
             />
           )}
         </div>
+        {/* Chat title and last message */}
         <div className="w-full">
           <p className="truncate-1">
             {getChatObjectMetadata(chat, user).title}
@@ -142,6 +146,7 @@ export default function ChatItem({
             </small>
           </div>
         </div>
+        {/* Chat meta: time and unread count */}
         <div className="flex text-white/50 h-full text-sm flex-col justify-between items-end">
           <small className="mb-2 inline-flex flex-shrink-0 w-max">
             {moment(chat.updatedAt).add("TIME_ZONE", "hours").fromNow(true)}
