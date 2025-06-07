@@ -1,13 +1,13 @@
 import { create } from "zustand";
 import apiClient from "@/lib/axios-setup";
 
-const useHackathonStore = create((set) => ({
+const useHackathonStore = create((set, get) => ({
   hackathons: [],
   total: 0,
   loading: false,
   filters: { search: "", themes: [], status: "" },
   page: 1,
-  pageSize: 9,
+  pageSize: 10,
   currentHackathon: null,
 
   setFilters: (filters) => set({ filters, page: 1 }),
@@ -28,7 +28,9 @@ const useHackathonStore = create((set) => ({
       const res = await apiClient.get("/hackathons", { params });
       set({
         hackathons: res.data.hackathons || [],
-        total: res.total || 0,
+        total: res.data.total || 0,
+        page: res.data.page || 1,
+        pageSize: res.data.pageSize || 10,
         loading: false,
       });
     } catch (error) {
@@ -41,9 +43,9 @@ const useHackathonStore = create((set) => ({
     set({ loading: true });
     try {
       const res = await apiClient.put(`/hackathons/${hackathonId}`, data);
-      if (res.status === 200) {
+      if (res.success) {
         set({ loading: false });
-        return { success: true, data: res.data };
+        return { success: true, data: res.data, message: res.message };
       } else {
         throw new Error("Failed to update hackathon");
       }
@@ -60,20 +62,22 @@ const useHackathonStore = create((set) => ({
     set({ loading: true });
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("image", file);
       formData.append("type", type);
-      
-      const res = await apiClient.post(`/hackathons/${hackathonId}/upload-image`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
-      if (res.status === 200) {
-        setCurrentHackathon({...currentHackathon, [type]: res.data.url})
-        return { success: true, data: res.data };
-      } else {
-        throw new Error("Failed to upload image");
+
+      const res = await apiClient.post(
+        `/hackathons/${hackathonId}/upload-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.success) {
+        set({ loading: false });
+        return { success: true, data: res.data, message: res.message };
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -89,7 +93,10 @@ const useHackathonStore = create((set) => ({
     try {
       const res = await apiClient.get(`/hackathons/${id}`);
       set({ loading: false });
-      return res.data;
+      if (!res.data) {
+        throw new Error("Hackathon not found");
+      }
+      return { success: true, data: res.data, message: res.message };
     } catch (e) {
       set({ loading: false });
       throw e; // rethrow to handle in component

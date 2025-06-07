@@ -49,12 +49,12 @@ export default function ThemesMultiSelect({ options }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <button
           variant="outline"
           className="w-full justify-start min-w-[180px] flex-wrap"
         >
           {placeholder}
-        </Button>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-0">
         <Command>

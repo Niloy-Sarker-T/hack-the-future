@@ -8,8 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 
 export default function EditHackathonStep4Timeline({ formData, setFormData }) {
   // Helper to safely parse date string
@@ -19,14 +17,12 @@ export default function EditHackathonStep4Timeline({ formData, setFormData }) {
     return isValid(d) ? d : undefined;
   };
 
-  console.log("Form data", formData);
-
   return (
     <div className="space-y-6">
       <div>
         <Label>Registration Deadline</Label>
         <Popover>
-          <PopoverTrigger asChild>
+          <PopoverTrigger>
             <Button
               variant="outline"
               className="w-full justify-start text-left font-normal"
@@ -45,10 +41,10 @@ export default function EditHackathonStep4Timeline({ formData, setFormData }) {
               mode="single"
               selected={getDate(formData?.registrationDeadline)}
               onSelect={(date) =>
-                setFormData(
-                  "registrationDeadline",
-                  date ? date.toISOString().slice(0, 10) : null
-                )
+                setFormData((f) => ({
+                  ...f,
+                  registrationDeadline: date ? date.toISOString() : "",
+                }))
               }
               initialFocus
             />
@@ -58,7 +54,7 @@ export default function EditHackathonStep4Timeline({ formData, setFormData }) {
       <div>
         <Label>Submission Deadline</Label>
         <Popover>
-          <PopoverTrigger asChild>
+          <PopoverTrigger>
             <Button
               variant="outline"
               className="w-full justify-start text-left font-normal"
@@ -77,10 +73,10 @@ export default function EditHackathonStep4Timeline({ formData, setFormData }) {
               mode="single"
               selected={getDate(formData?.submissionDeadline)}
               onSelect={(date) =>
-                setFormData(
-                  "submissionDeadline",
-                  date ? date.toISOString().slice(0, 10) : null
-                )
+                setFormData((f) => ({
+                  ...f,
+                  submissionDeadline: date ? date.toISOString() : "",
+                }))
               }
               initialFocus
             />

@@ -17,17 +17,31 @@ export default function Header() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = userStore((state) => state.user);
-  const logout = userStore((state) => state.logout);
+  let user = null;
+  let logout = null;
+
+  try {
+    user = userStore((state) => state.user);
+    logout = userStore((state) => state.logout);
+  } catch (error) {
+    console.warn("Store access error in Header:", error);
+    // Handle gracefully
+  }
 
   const handleLogout = async () => {
-    await logout();
-    toast.success("Logout successfull", {
-      richColors: true,
-      description: "You've successfully logged out.",
-      duration: 1500,
-    });
-    navigate("/login");
+    if (!logout) return;
+
+    try {
+      await logout();
+      toast.success("Logout successful", {
+        richColors: true,
+        description: "You've successfully logged out.",
+        duration: 1500,
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -70,7 +84,7 @@ export default function Header() {
             </Button>
           ) : (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <Avatar className="cursor-pointer">
                   <AvatarImage src={user.avatarUrl} alt="avatar" />
                   <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
