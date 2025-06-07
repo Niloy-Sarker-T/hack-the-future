@@ -13,6 +13,7 @@ import CreateHackathonPage from "./pages/hackathons/create-hackathon";
 import ManageHackathonsPage from "./pages/hackathons/manage-hackathons";
 import EditHackathonPage from "./pages/hackathons/edit-hackathon";
 import HackathonShowcasePage from "./pages/hackathons/HackathonShowcasePage";
+import ChatPage from "./pages/chat";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             {/* Add protected routes here */}
+            <Route path="/chat" element={<ChatPage />} />  
             <Route path="/edit-profile" element={<EditProfilePage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route
