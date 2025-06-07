@@ -467,6 +467,10 @@ export const uploadHackathonImage = asyncHandler(async (req, res) => {
   if (!hackathonId) {
     throw new ApiError(400, "Hackathon ID is required");
   }
+
+  if (!req.file) {
+    throw new ApiError(400, "Image file is required");
+  }
   // Check if user is authorized to upload (must be creator)
   const hackathon = await db
     .select()
@@ -483,16 +487,6 @@ export const uploadHackathonImage = asyncHandler(async (req, res) => {
     );
   }
 
-  try {
-    upload.single("image")(req, res, async (err) => {
-      if (err) {
-        return next(new ApiError(400, `Image upload failed: ${err.message}`));
-      }
-    });
-  } catch (error) {
-    throw new ApiError(500, `Image upload middleware error: ${error.message}`);
-  }
-
   if (!req.file || !["thumbnail", "banner"].includes(req.body.type)) {
     throw new ApiError(
       400,
@@ -500,42 +494,40 @@ export const uploadHackathonImage = asyncHandler(async (req, res) => {
     );
   }
 
-  if (!req.file || !["thumbnail", "banner"].includes(req.body.type)) {
-    // Validate req.file.buffer
-    if (!req.file.buffer || !(req.file.buffer instanceof Buffer)) {
-      throw new ApiError(400, "Invalid image buffer");
-    }
-
-    const result = await uploadBufferToCloudinary(
-      req.file.buffer,
-      "hackathons",
-      {
-        public_id: `${req.body.type}-${hackathonId}`,
-        folder: "hackathons",
-      }
+  let result;
+  try {
+    result = await uploadBufferToCloudinary(req.file.buffer, "hackathons", {
+      public_id: `hackathon-${hackathonId}`,
+      folder: "hackathons",
+      resource_type: "image",
+      overwrite: true,
+    });
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Internal server error while processing image upload"
     );
-
-    if (!result || !result.secure_url) {
-      throw new ApiError(500, "Image upload failed");
-    }
-    // Update hackathon with the image URL
-    await db
-      .update(hackathonsTable)
-      .set({
-        [req.body.type]: result.secure_url,
-        updatedAt: new Date(),
-      })
-      .where(eq(hackathonsTable.id, hackathonId));
-
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          { url: result.secure_url, type: req.body.type },
-          "Image uploaded"
-        )
-      );
   }
-  throw new ApiError(400, "Image upload failed");
+
+  if (!result || !result.secure_url) {
+    throw new ApiError(500, "Image upload failed");
+  }
+  // Update hackathon with the image URL
+  await db
+    .update(hackathonsTable)
+    .set({
+      [req.body.type]: result.secure_url,
+      updatedAt: new Date(),
+    })
+    .where(eq(hackathonsTable.id, hackathonId));
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { url: result.secure_url, type: req.body.type },
+        "Image uploaded"
+      )
+    );
 });

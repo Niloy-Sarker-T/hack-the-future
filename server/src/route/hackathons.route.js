@@ -63,6 +63,11 @@ router.get("/ended", getEndHackathons);
 router.get("/ongoing", getOngoingHackathons);
 
 // Upload thumbnail or banner image
-router.post("/:hackathonId/upload-image", verifyJWT, uploadHackathonImage);
+router.post(
+  "/:hackathonId/upload-image",
+  verifyJWT,
+  upload.single("image"),
+  uploadHackathonImage
+);
 
 export default router;
