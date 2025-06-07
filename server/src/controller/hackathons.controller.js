@@ -299,6 +299,12 @@ export const updateHackathon = asyncHandler(async (req, res) => {
     );
   }
 
+  if (updateData.registrationDeadline) {
+    updateData.registrationDeadline = new Date(updateData.registrationDeadline);
+  }
+  if (updateData.submissionDeadline) {
+    updateData.submissionDeadline = new Date(updateData.submissionDeadline);
+  }
   // Optionally: Validate fields here (e.g., don't allow past deadlines)
 
   const [updatedHackathon] = await db
