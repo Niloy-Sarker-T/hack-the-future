@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "@/components/layout/layout";
 import HomePage from "@/pages/home";
 import NotFoundPage from "./pages/page-not-found";
@@ -11,7 +11,8 @@ import EditProfilePage from "./pages/portfolio/EditProfilePage";
 import ProtectedRoute from "./components/layout/protected-layout";
 import CreateHackathonPage from "./pages/hackathons/create-hackathon";
 import ManageHackathonsPage from "./pages/hackathons/manage-hackathons";
-import EditHackathonPage from "./pages/hackathons/edit-hacakthon";
+import EditHackathonPage from "./pages/hackathons/edit-hackathon";
+import HackathonShowcasePage from "./pages/hackathons/HackathonShowcasePage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/hackathons" element={<HackathonShowcasePage />} />
           <Route
             path="/portfolio/:username"
             element={<OtherUserPortfolioPage />}
