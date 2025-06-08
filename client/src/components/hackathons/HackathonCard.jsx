@@ -7,63 +7,68 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import HackathonThemeChips from "./HackathonThemeChips";
+import { Link } from "react-router-dom";
 
 export default function HackathonCard({ hackathon }) {
   return (
-    <Card className="flex flex-col overflow-hidden">
-      <div className="relative">
-        <img
-          src={hackathon.image || "/default-hackathon.jpg"}
-          alt={hackathon.title}
-          width={400}
-          height={200}
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-2 right-2">
+    <Card className="flex flex-col">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl">{hackathon.title}</CardTitle>
+            <Badge className="text-sm bg-primary/20 text-muted-foreground mt-1">
+              by {hackathon.organizeBy}
+            </Badge>
+          </div>
           <Badge
-            variant={
-              hackathon.status === "ongoing"
-                ? "default"
-                : hackathon.status === "upcoming"
-                ? "secondary"
-                : "destructive"
-            }
-            className={
+            className={`text-sm ${
               hackathon.status === "upcoming"
-                ? "bg-primary/10 text-primary"
-                : ""
-            }
+                ? "bg-green-100 text-green-800"
+                : hackathon.status === "ongoing"
+                ? "bg-primary/10"
+                : hackathon.status === "end"
+                ? "bg-red-200 text-red-500"
+                : "bg-yellow-100/30 text-yellow-400"
+            }`}
           >
             {hackathon.status}
           </Badge>
         </div>
-      </div>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{hackathon.title}</CardTitle>
-        <Badge className="text-sm bg-primary/20 text-muted-foreground">
-          {hackathon.organization ?? "demo"}
-        </Badge>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <HackathonThemeChips themes={hackathon.themes} />
-        <div className="text-xs text-muted-foreground mt-2 mb-4">
-          {hackathon.registrationDeadline ?? "NaN"} –{" "}
-          {hackathon.submissionDeadline ?? "NaN"}
+        <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+          <div>
+            <span className="text-muted-foreground">Registration:</span>
+            <div className="font-medium">
+              {hackathon.registrationDeadline
+                ? new Date(hackathon.registrationDeadline).toLocaleDateString()
+                : "N/A"}
+            </div>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Submission:</span>
+            <div className="font-medium">
+              {hackathon.submissionDeadline
+                ? new Date(hackathon.submissionDeadline).toLocaleDateString()
+                : "N/A"}
+            </div>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="flex gap-2 mt-auto">
-        <a
-          href={`/hackathons/${hackathon.id}`}
-          className="bg-primary text-white px-3 py-1 rounded text-sm"
+        <Link
+          to={`/hackathons/${hackathon.id}`}
+          className="bg-primary text-white px-4 py-2 rounded text-sm flex-1 text-center"
         >
-          Details
-        </a>
-        <a
-          href={`/hackathons/${hackathon.id}/apply`}
-          className="border border-primary text-primary px-3 py-1 rounded text-sm"
+          View Details
+        </Link>
+        <Link
+          to={`/hackathons/${hackathon.id}/apply`}
+          className="border border-primary text-primary px-4 py-2 rounded text-sm flex-1 text-center"
         >
-          Apply
-        </a>
+          Apply Now
+        </Link>
       </CardFooter>
     </Card>
   );
