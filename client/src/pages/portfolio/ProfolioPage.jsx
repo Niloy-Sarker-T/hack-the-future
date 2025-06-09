@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +14,17 @@ import {
   Code2,
   Award,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
+import AlertDialog from "@/components/AlertDialog"; // adjust path if needed
+import ProjectForm from "@/components/ProjectForm"; // adjust path if needed
 
 export default function PortfolioPage() {
   const user = userStore((state) => state.user);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
 
   // Dummy: statistics, replace with real data as needed
   const statistics = user.statistics || {
@@ -26,6 +32,22 @@ export default function PortfolioPage() {
     projects: 10,
     achievements: 3,
   };
+
+  const handleAddProjectClick = () => setShowDialog(true);
+
+  const handleDialogSelect = (isHackathon) => {
+    setShowDialog(false);
+    if (isHackathon) {
+      // You can navigate or handle hackathon logic here
+      // Example: navigate("/hackathon/submit");
+      // For now, just close dialog
+    } else {
+      setShowForm(true);
+    }
+  };
+
+  const handleDialogClose = () => setShowDialog(false);
+  const handleFormClose = () => setShowForm(false);
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 flex flex-col gap-8">
@@ -123,7 +145,9 @@ export default function PortfolioPage() {
                   Edit Profile
                 </Button>
               </Link>
-              <Button className="w-full">Add a Project</Button>
+              <Button className="w-full" onClick={handleAddProjectClick}>
+                Add a Project
+              </Button>
             </div>
           </Card>
         </aside>
@@ -188,6 +212,30 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
       </section>
+
+      {/* AlertDialog Modal */}
+      {showDialog && (
+        <AlertDialog
+          onClose={handleDialogClose}
+          onSelect={handleDialogSelect}
+        />
+      )}
+
+      {/* ProjectForm Modal */}
+      {showForm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-md w-full max-w-lg relative">
+            <button
+              className="absolute top-2 right-4 text-gray-500 text-2xl"
+              onClick={handleFormClose}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <ProjectForm />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
