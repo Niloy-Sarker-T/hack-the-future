@@ -17,8 +17,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
-import AlertDialog from "@/components/AlertDialog"; // adjust path if needed
-import ProjectForm from "@/components/ProjectForm"; // adjust path if needed
+import AlertDialog from "@/components/projects/AlertDialog"; // adjust path if needed
+import ProjectForm from "@/components/projects/ProjectForm"; // adjust path if needed
 
 export default function PortfolioPage() {
   const user = userStore((state) => state.user);
