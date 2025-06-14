@@ -98,3 +98,18 @@ export const judgesTable = pgTable("judges", {
   role: varchar("role", { length: 50 }).default("judge"), // 'judge', 'mentor', etc.
   assignedAt: timestamp("assigned_at").defaultNow(),
 });
+
+export const projectEvaluationsTable = pgTable("project_evaluations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id")
+    .references(() => projectsTable.id)
+    .notNull(),
+  judgeId: uuid("judge_id")
+    .references(() => usersTable.id)
+    .notNull(),
+  scores: jsonb("scores"), // JSON object with criteria-based scores
+  feedback: text("feedback"),
+  overallScore: integer("overall_score"), // Overall score out of 100
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});

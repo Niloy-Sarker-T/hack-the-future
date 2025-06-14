@@ -5,6 +5,7 @@ import {
   getUserProfileByUsername,
   getUserProfile,
   updateUserRole,
+  searchUsers,
 } from "../controller/users.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
 import upload from "../middleware/multer.middleware.js";
@@ -16,6 +17,9 @@ import {
 } from "../validators/users.validator.js";
 
 const router = Router();
+
+// Search users
+router.get("/search", searchUsers);
 
 // Get user profile by username
 // /api/users?username=someusername

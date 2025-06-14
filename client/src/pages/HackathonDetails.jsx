@@ -37,6 +37,8 @@ import {
   Loader2,
   Edit3,
 } from "lucide-react";
+import JudgeManagement from "@/components/hackathons/JudgeManagement";
+import EvaluationResults from "@/components/hackathons/EvaluationResults";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
@@ -836,24 +838,34 @@ export default function HackathonDetails() {
             </TabsContent>
 
             <TabsContent value="criteria" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Trophy className="w-5 h-5" />
-                    Judging Criteria
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {hackathon.judgingCriteria && (
-                    <div
-                      className="prose max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: hackathon.judgingCriteria,
-                      }}
-                    />
-                  )}
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="w-5 h-5" />
+                      Judging Criteria
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {hackathon.judgingCriteria && (
+                      <div
+                        className="prose max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html: hackathon.judgingCriteria,
+                        }}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Judge Management - Only visible to organizers */}
+                {user && hackathon.createdBy === user.id && (
+                  <>
+                    <JudgeManagement hackathonId={hackathon.id} />
+                    <EvaluationResults hackathonId={hackathon.id} />
+                  </>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="teams" className="mt-6">

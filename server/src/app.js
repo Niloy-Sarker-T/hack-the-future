@@ -53,6 +53,7 @@ import projectsRoute from "./route/projects.route.js";
 import teamsRoute from "./route/teams.route.js";
 import teamInvitationsRoute from "./route/team-invitations.route.js";
 import hackathonRegistrationRoute from "./route/hackathon-registration.route.js";
+import judgesRoute from "./route/judges.route.js";
 
 // * healthcheck
 app.use("/api/healthcheck", healthcheckRouter);
@@ -63,6 +64,7 @@ app.use("/api/projects", projectsRoute);
 app.use("/api/teams", teamsRoute);
 app.use("/api/team-invitations", teamInvitationsRoute);
 app.use("/api/hackathon-registration", hackathonRegistrationRoute);
+app.use("/api/judges", judgesRoute);
 
 // * API DOCS
 // ? Keeping swagger code at the end so that we can load swagger on "/" route

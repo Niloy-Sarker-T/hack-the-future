@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import EditHackathonStep2Markdown from "@/components/edit-hackathon/EditHackathonStep2Markdown";
 import EditHackathonStep3Team from "@/components/edit-hackathon/EditHackathonStep3Team";
 import EditHackathonStep4Timeline from "@/components/edit-hackathon/EditHackathonStep4Timeline";
+import EditHackathonJudges from "@/components/edit-hackathon/EditHackathonJudges";
 import userStore from "@/store/user-store";
 import {
   Dialog,
@@ -21,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { THEMES } from "@/constants/themes";
 import { set } from "date-fns";
 
-const TAB_KEYS = ["basic", "details", "team", "timeline"];
+const TAB_KEYS = ["basic", "details", "team", "timeline", "judges"];
 
 export default function EditHackathonPage() {
   const {
@@ -222,6 +223,7 @@ export default function EditHackathonPage() {
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="team">Team Rules</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="judges">Judges</TabsTrigger>
         </TabsList>
 
         {/* Basic Info Tab - Simplified with banner upload */}
@@ -352,6 +354,11 @@ export default function EditHackathonPage() {
             formData={formData}
             setFormData={setFormData}
           />
+        </TabsContent>
+
+        {/* Judges Tab */}
+        <TabsContent value="judges" className="space-y-6">
+          <EditHackathonJudges hackathonId={hackathonId} />
         </TabsContent>
       </Tabs>
 

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { ilike, or } from "drizzle-orm";
 import { db } from "../db/db.config.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
@@ -178,10 +179,47 @@ const updateUserRole = asyncHandler(async (req, res) => {
       new ApiResponse(200, updatedUser[0], "User role updated successfully")
     );
 });
+
+// Search users by name, username, or email
+const searchUsers = asyncHandler(async (req, res) => {
+  const { q, limit = 10 } = req.query;
+
+  if (!q || q.trim().length < 2) {
+    throw new ApiError(400, "Search query must be at least 2 characters");
+  }
+
+  const searchTerm = q.trim();
+
+  const users = await db
+    .select({
+      id: usersTable.id,
+      fullName: usersTable.fullName,
+      username: usersTable.userName,
+      email: usersTable.email,
+      avatarUrl: usersTable.avatarUrl,
+      bio: usersTable.bio,
+    })
+    .from(usersTable)
+    .where(
+      or(
+        ilike(usersTable.fullName, `%${searchTerm}%`),
+        ilike(usersTable.userName, `%${searchTerm}%`),
+        ilike(usersTable.email, `%${searchTerm}%`)
+      )
+    )
+    .limit(parseInt(limit))
+    .orderBy(usersTable.fullName);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, users, "Users found successfully"));
+});
+
 export {
   uploadProfileImage,
   updateUserProfile,
   getUserProfileByUsername,
   getUserProfile,
   updateUserRole,
+  searchUsers,
 };

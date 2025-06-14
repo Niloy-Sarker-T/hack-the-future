@@ -25,6 +25,8 @@ import FindTeammatesPage from "./pages/hackathons/FindTeammatesPage";
 import TeamDashboard from "./pages/hackathons/TeamDashboard";
 import TeamSuccessPage from "./pages/hackathons/TeamSuccessPage";
 // import ChatPage from "./pages/chat";
+import JudgeDashboard from "./pages/judge/JudgeDashboard";
+import ProjectEvaluationPage from "./pages/judge/ProjectEvaluationPage";
 
 function App() {
   return (
@@ -105,6 +107,12 @@ function App() {
           />
           <Route path="/manage-hackathon" element={<ManageHackathonsPage />} />
           {/* </Route> */}
+          {/* Judge routes */}
+          <Route path="/judge/dashboard" element={<JudgeDashboard />} />
+          <Route
+            path="/judge/hackathons/:hackathonId/projects"
+            element={<ProjectEvaluationPage />}
+          />
           {/* Others */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
