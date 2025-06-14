@@ -329,10 +329,16 @@ export default function HackathonDetails() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 justify-center mb-8">
+          <div className="flex flex-wrap gap-4 justify-center mb-8">
             <Link to={`/hackathons/${hackathon.id}/apply`}>
               <Button size="lg" className="px-8">
                 Register Now
+              </Button>
+            </Link>
+            <Link to={`/hackathons/${hackathon.id}/projects`}>
+              <Button variant="outline" size="lg">
+                <Trophy className="w-4 h-4 mr-2" />
+                View Projects
               </Button>
             </Link>
             <Button variant="outline" size="lg" onClick={handleNativeShare}>
@@ -343,7 +349,7 @@ export default function HackathonDetails() {
 
           {/* Tabbed Content */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <Info className="w-4 h-4" />
                 Overview
@@ -359,6 +365,10 @@ export default function HackathonDetails() {
               <TabsTrigger value="teams" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 Teams
+              </TabsTrigger>
+              <TabsTrigger value="projects" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Projects
               </TabsTrigger>
             </TabsList>
 
@@ -450,6 +460,49 @@ export default function HackathonDetails() {
                       </AlertDescription>
                     </Alert>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="projects" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Project Submissions</CardTitle>
+                    <Link to={`/hackathons/${hackathon.id}/projects`}>
+                      <Button variant="outline">View All Projects</Button>
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center py-8">
+                    <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      Projects & Submissions
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      View all project submissions for this hackathon
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Link to={`/hackathons/${hackathon.id}/projects`}>
+                        <Button variant="outline">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Browse Projects
+                        </Button>
+                      </Link>
+                      {new Date() <=
+                        new Date(
+                          hackathon.submissionDeadline || new Date()
+                        ) && (
+                        <Link to={`/hackathons/${hackathon.id}/submit`}>
+                          <Button>
+                            <Trophy className="w-4 h-4 mr-2" />
+                            Submit Project
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

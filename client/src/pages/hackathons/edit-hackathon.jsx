@@ -91,18 +91,7 @@ export default function EditHackathonPage() {
         }
         const hackathon = res.data;
         setFormData({
-          id: hackathon.id,
-          themes: hackathon.themes || [],
-          title: hackathon.title || "",
-          organizeBy: hackathon.organizeBy || "",
-          description: hackathon.description || "",
-          createdBy: hackathon.createdBy || "",
-          allowSoloParticipation: hackathon.allowSoloParticipation || false,
-          maxTeamSize: hackathon.maxTeamSize || 1,
-          minTeamSize: hackathon.minTeamSize || 1,
-          teamRules: hackathon.teamRules || "",
-          registrationDeadline: hackathon.registrationDeadline || "",
-          submissionDeadline: hackathon.submissionDeadline || "",
+          ...hackathon,
         });
         await setCurrentHackathon({ ...res.data });
       }
@@ -202,7 +191,21 @@ export default function EditHackathonPage() {
       submissionDeadline: new Date(formData.submissionDeadline) || null,
       themes: Array.isArray(formData.themes) ? formData.themes : [],
     };
-    const res = await updateHackathon(formData.id, payload);
+    // if any keys value is null or undefined, then change it to empty string
+    const filteredPayload = Object.fromEntries(
+      Object.entries(payload).map(([key, value]) => [
+        key,
+        value === null || value === undefined ? "" : value,
+      ])
+    );
+    const res = await updateHackathon(formData.id, filteredPayload);
+    if (!res.success) {
+      toast.error(res.message || "Failed to update hackathon", {
+        richColors: true,
+      });
+      console.error("Update Hackathon Error:", res);
+      return;
+    }
     setCurrentHackathon({ ...res.data });
     toast.success(res.message || "Hackathon updated successfully", {
       richColors: true,

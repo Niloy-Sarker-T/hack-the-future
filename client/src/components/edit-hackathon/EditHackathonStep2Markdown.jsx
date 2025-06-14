@@ -9,7 +9,7 @@ export default function EditHackathonStep2Markdown({ formData, setFormData }) {
         <RichTextEditor
           key={"description-editor"}
           placeholder="Describe your hackathon..."
-          value={formData?.description ?? ""}
+          content={formData?.description ?? ""}
           onChange={(value) =>
             setFormData((f) => ({ ...f, ["description"]: value }))
           }
@@ -20,7 +20,7 @@ export default function EditHackathonStep2Markdown({ formData, setFormData }) {
         <RichTextEditor
           key={"requirements-editor"}
           placeholder="Requirements..."
-          value={formData?.requirements ?? ""}
+          content={formData?.requirements ?? ""}
           onChange={(value) =>
             setFormData((f) => ({ ...f, ["requirements"]: value }))
           }
@@ -31,7 +31,7 @@ export default function EditHackathonStep2Markdown({ formData, setFormData }) {
         <RichTextEditor
           key={"judging-criteria-editor"}
           placeholder="Judging criteria..."
-          value={formData?.judgingCriteria ?? ""}
+          content={formData?.judgingCriteria ?? ""}
           onChange={(value) =>
             setFormData((f) => ({ ...f, ["judgingCriteria"]: value }))
           }
