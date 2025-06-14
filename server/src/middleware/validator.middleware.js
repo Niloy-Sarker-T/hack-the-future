@@ -1,3 +1,4 @@
+import logger from "../logger/winston.logger.js";
 import { ApiError } from "../utils/api-error.js";
 
 /**
@@ -8,44 +9,46 @@ import { ApiError } from "../utils/api-error.js";
  * @param {import('zod').Schema} schema - The schema to validate the request body against.
  * @returns {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => void}
  */
-export const validate = (schema) => (req, res, next) => {
-  try {
-    const validation = schema.safeParse(req.body);
+export const validate = (schema, source = "body") => {
+  return (req, res, next) => {
+    try {
+      let dataToValidate;
 
-    if (!validation.success) {
-      const errorMessages = validation.error.errors
-        .map((err) => `${err.path.join(".")}: ${err.message}`)
-        .join(", ");
+      switch (source) {
+        case "query":
+          dataToValidate = req.query;
+          break;
+        case "params":
+          dataToValidate = req.params;
+          break;
+        default:
+          dataToValidate = req.body;
+      }
 
-      throw new ApiError(422, `Validation failed: ${errorMessages}`);
+      const result = schema.safeParse(dataToValidate);
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: "Validation error",
+          details: result.error.errors,
+        });
+      }
+
+      // Assign validated data back
+      if (source === "query") {
+        req.query = result.data;
+      } else if (source === "params") {
+        req.params = result.data;
+      } else {
+        req.body = result.data;
+      }
+
+      next();
+    } catch (error) {
+      // Handle unexpected errors
+      logger.error("Validation middleware error:", error);
+      return next(new ApiError(500, "Internal server error"));
     }
-
-    // Replace req.body with validated data
-    req.body = validation.data;
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const validateQuery = (schema) => (req, res, next) => {
-  try {
-    const result = schema.parse(req.query);
-    req.query = result;
-    next();
-  } catch (error) {
-    const errorMessage = error.errors?.map((err) => err.message).join(", ");
-    throw new ApiError(400, `Query validation failed: ${errorMessage}`);
-  }
-};
-
-export const validateParams = (schema) => (req, res, next) => {
-  try {
-    const result = schema.parse(req.params);
-    req.params = result;
-    next();
-  } catch (error) {
-    const errorMessage = error.errors?.map((err) => err.message).join(", ");
-    throw new ApiError(400, `Params validation failed: ${errorMessage}`);
-  }
+  };
 };

@@ -91,7 +91,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 const getUserProfileByUsername = asyncHandler(async (req, res) => {
-  const username = req.query.username;
+  const username = req.query.userName;
   if (!username) {
     throw new ApiError(400, "Username query parameter is required");
   }

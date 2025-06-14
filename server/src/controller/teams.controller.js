@@ -7,6 +7,7 @@ import {
   teamMembersTable,
   usersTable,
   hackathonsTable,
+  hackathonParticipants,
 } from "../db/schema/index.js";
 import { eq, and, ne } from "drizzle-orm";
 
@@ -57,7 +58,23 @@ export const createTeam = asyncHandler(async (req, res) => {
     role: "leader",
   });
 
-  res.status(201).json(new ApiResponse(201, team, "Team created successfully"));
+  await db.insert(hackathonParticipants).values({
+    hackathonId,
+    userId: requesterId,
+    participationType: "team", // Assuming participants are automatically added
+    teamId: team.id,
+    joinedAt: new Date(),
+  });
+
+  // Transform the team data to match frontend expectations
+  const transformedTeam = {
+    ...team,
+    name: team.teamName, // Map teamName to name for frontend
+  };
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, transformedTeam, "Team created successfully"));
 });
 
 export const getTeamById = asyncHandler(async (req, res) => {
@@ -66,10 +83,12 @@ export const getTeamById = asyncHandler(async (req, res) => {
   const team = await db
     .select({
       id: teamsTable.id,
-      name: teamsTable.name,
+      name: teamsTable.teamName,
       description: teamsTable.description,
       hackathonId: teamsTable.hackathonId,
       leaderId: teamsTable.leaderId,
+      maxMembers: teamsTable.maxMembers,
+      isOpen: teamsTable.isOpen,
       createdAt: teamsTable.createdAt,
     })
     .from(teamsTable)
@@ -86,8 +105,10 @@ export const getTeamById = asyncHandler(async (req, res) => {
       userId: teamMembersTable.userId,
       role: teamMembersTable.role,
       joinedAt: teamMembersTable.joinedAt,
-      username: usersTable.username,
+      username: usersTable.userName,
+      fullName: usersTable.fullName,
       email: usersTable.email,
+      avatar: usersTable.avatarUrl,
     })
     .from(teamMembersTable)
     .innerJoin(usersTable, eq(usersTable.id, teamMembersTable.userId))
@@ -157,6 +178,14 @@ export const joinTeam = asyncHandler(async (req, res) => {
     .insert(teamMembersTable)
     .values({ teamId, userId, role: "member" })
     .returning();
+
+  await db.insert(hackathonParticipants).values({
+    hackathonId,
+    userId,
+    participationType: "team",
+    teamId,
+    joinedAt: new Date(),
+  });
 
   res
     .status(201)
@@ -384,9 +413,15 @@ export const updateTeamInfo = asyncHandler(async (req, res) => {
     .where(eq(teamsTable.id, teamId))
     .returning();
 
+  // Transform the team data to match frontend expectations
+  const transformedTeam = {
+    ...updatedTeam,
+    name: updatedTeam.teamName, // Map teamName to name for frontend
+  };
+
   res
     .status(200)
-    .json(new ApiResponse(200, updatedTeam, "Team updated successfully"));
+    .json(new ApiResponse(200, transformedTeam, "Team updated successfully"));
 });
 
 export const getTeamsByHackathon = asyncHandler(async (req, res) => {
@@ -394,38 +429,72 @@ export const getTeamsByHackathon = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const offset = (page - 1) * limit;
 
+  // Validate hackathon exists first
+  const hackathon = await db
+    .select()
+    .from(hackathonsTable)
+    .where(eq(hackathonsTable.id, hackathonId))
+    .limit(1);
+
+  if (hackathon.length === 0) {
+    throw new ApiError(404, "Hackathon not found");
+  }
+
   const teams = await db
     .select({
       id: teamsTable.id,
-      name: teamsTable.name,
+      name: teamsTable.teamName,
       description: teamsTable.description,
+      maxMembers: teamsTable.maxMembers,
+      isOpen: teamsTable.isOpen,
+      leaderId: teamsTable.leaderId,
       createdAt: teamsTable.createdAt,
     })
     .from(teamsTable)
     .where(eq(teamsTable.hackathonId, hackathonId))
-    .limit(limit)
-    .offset(offset);
+    .limit(Number(limit))
+    .offset(Number(offset));
 
-  // Get member count for each team
-  const teamsWithMemberCount = await Promise.all(
+  // Get member count and leader info for each team
+  const teamsWithDetails = await Promise.all(
     teams.map(async (team) => {
-      const memberCount = await db
-        .select()
-        .from(teamMembersTable)
-        .where(eq(teamMembersTable.teamId, team.id));
+      try {
+        // Get member count
+        const memberCount = await db
+          .select()
+          .from(teamMembersTable)
+          .where(eq(teamMembersTable.teamId, team.id));
 
-      return {
-        ...team,
-        memberCount: memberCount.length,
-      };
+        // Get leader info
+        const leader = await db
+          .select({
+            name: usersTable.fullName,
+            username: usersTable.userName,
+            avatar: usersTable.avatarUrl,
+          })
+          .from(usersTable)
+          .where(eq(usersTable.id, team.leaderId))
+          .limit(1);
+
+        return {
+          ...team,
+          memberCount: memberCount.length,
+          leader: leader.length > 0 ? leader[0] : null,
+        };
+      } catch (error) {
+        console.error(`Error processing team ${team.id}:`, error);
+        return {
+          ...team,
+          memberCount: 0,
+          leader: null,
+        };
+      }
     })
   );
 
   res
     .status(200)
-    .json(
-      new ApiResponse(200, teamsWithMemberCount, "Teams fetched successfully")
-    );
+    .json(new ApiResponse(200, teamsWithDetails, "Teams fetched successfully"));
 });
 
 export const getUserTeams = asyncHandler(async (req, res) => {
@@ -435,7 +504,7 @@ export const getUserTeams = asyncHandler(async (req, res) => {
     .select({
       teamId: teamMembersTable.teamId,
       role: teamMembersTable.role,
-      teamName: teamsTable.name,
+      teamName: teamsTable.teamName,
       teamDescription: teamsTable.description,
       hackathonId: teamsTable.hackathonId,
     })
@@ -447,3 +516,66 @@ export const getUserTeams = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, userTeams, "User teams fetched successfully"));
 });
+
+export const searchTeams = async (req, res) => {
+  try {
+    const {
+      hackathonId,
+      skills,
+      isOpen = true,
+      page = 1,
+      limit = 12,
+      search,
+    } = req.query;
+
+    // Build search conditions
+    let whereConditions = [];
+
+    if (hackathonId) {
+      whereConditions.push(eq(teamsTable.hackathonId, hackathonId));
+    }
+
+    if (isOpen === "true") {
+      whereConditions.push(eq(teamsTable.isOpen, true));
+    }
+
+    // Search teams with member count and availability
+    const teams = await db
+      .select({
+        id: teamsTable.id,
+        teamName: teamsTable.teamName,
+        description: teamsTable.description,
+        maxMembers: teamsTable.maxMembers,
+        isOpen: teamsTable.isOpen,
+        hackathonId: teamsTable.hackathonId,
+        leaderId: teamsTable.leaderId,
+        createdAt: teamsTable.createdAt,
+        leader: {
+          name: usersTable.name,
+          avatar: usersTable.avatar,
+        },
+        memberCount: sql`(SELECT COUNT(*) FROM ${teamMembersTable} WHERE ${teamMembersTable.teamId} = ${teamsTable.id})`,
+        availableSpots: sql`(${teamsTable.maxMembers} - (SELECT COUNT(*) FROM ${teamMembersTable} WHERE ${teamMembersTable.teamId} = ${teamsTable.id}))`,
+      })
+      .from(teamsTable)
+      .leftJoin(usersTable, eq(teamsTable.leaderId, usersTable.id))
+      .where(and(...whereConditions))
+      .having(
+        sql`(${teamsTable.maxMembers} - (SELECT COUNT(*) FROM ${teamMembersTable} WHERE ${teamMembersTable.teamId} = ${teamsTable.id})) > 0`
+      )
+      .orderBy(desc(teamsTable.createdAt))
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    res.json({
+      success: true,
+      data: { teams },
+    });
+  } catch (error) {
+    console.error("Search teams error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};

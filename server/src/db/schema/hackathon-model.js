@@ -43,9 +43,10 @@ export const hackathonParticipants = pgTable("hackathon_participants", {
   userId: uuid("user_id")
     .references(() => usersTable.id)
     .notNull(),
-  participationType: varchar("participation_type", { length: 20 }).notNull(), // 'solo' or 'team'
-  teamId: uuid("team_id").references(() => teamsTable.id), // NULL for solo participants
-  registeredAt: timestamp("registered_at").defaultNow(),
+  // MAKE SURE this field name matches what you're using in controller
+  participationType: varchar("participation_type", { length: 20 }).notNull(),
+  teamId: uuid("team_id").references(() => teamsTable.id),
+  joinedAt: timestamp("joined_at").defaultNow(),
 });
 
 export const submissionsTable = pgTable("submissions", {

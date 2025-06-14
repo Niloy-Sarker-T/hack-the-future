@@ -22,6 +22,20 @@
       "when": 1748894706440,
       "tag": "0002_milky_sasquatch",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1749408125052,
+      "tag": "0003_clever_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749906097505,
+      "tag": "0004_wonderful_korath",
+      "breakpoints": true
     }
   ]
 }

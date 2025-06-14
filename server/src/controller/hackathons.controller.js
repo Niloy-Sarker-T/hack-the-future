@@ -266,6 +266,37 @@ export const getHackathonParticipants = asyncHandler(async (req, res) => {
     );
 });
 
+export const getMyHackathonParticipation = asyncHandler(async (req, res) => {
+  const { hackathonId } = req.params;
+  const userId = req.user.id;
+  const participation = await db
+    .select({
+      userId: hackathonParticipants.userId,
+      participationType: hackathonParticipants.participationType,
+      teamId: hackathonParticipants.teamId,
+    })
+    .from(hackathonParticipants)
+    .where(
+      and(
+        eq(hackathonParticipants.hackathonId, hackathonId),
+        eq(hackathonParticipants.userId, userId)
+      )
+    )
+    .limit(1);
+  if (participation.length === 0) {
+    throw new ApiError(404, "You are not registered for this hackathon");
+  }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { ...participation[0] },
+        "Your participation details fetched successfully"
+      )
+    );
+});
+
 export const updateHackathon = asyncHandler(async (req, res) => {
   const { hackathonId } = req.params;
   const userId = req.user.id;
@@ -286,17 +317,6 @@ export const updateHackathon = asyncHandler(async (req, res) => {
   // Check if user is authorized to update (must be creator)
   if (hackathon[0].createdBy !== userId) {
     throw new ApiError(403, "You are not authorized to update this hackathon");
-  }
-
-  // Restrict updates after registration deadline
-  if (
-    hackathon[0].registrationDeadline &&
-    new Date() > new Date(hackathon[0].registrationDeadline)
-  ) {
-    throw new ApiError(
-      400,
-      "Cannot update hackathon after registration deadline"
-    );
   }
 
   if (updateData.registrationDeadline) {
