@@ -5,7 +5,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import useHackathonStore from "@/store/hackathon-store";
+import userStore from "@/store/user-store";
+import apiClient from "@/lib/axios-setup";
 import {
   Calendar,
   Clock,
@@ -20,6 +31,11 @@ import {
   Info,
   Target,
   FileText,
+  Settings,
+  User,
+  UserX,
+  Loader2,
+  Edit3,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -38,47 +54,94 @@ export default function HackathonDetails() {
     getHackathonById,
     setCurrentHackathon,
   } = useHackathonStore();
+  const user = userStore((state) => state.user);
   const hackathonId = useParams().hackathonId;
   const [currentUrl, setCurrentUrl] = useState("");
+  const [registrationStatus, setRegistrationStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [changeTypeDialogOpen, setChangeTypeDialogOpen] = useState(false);
 
   useEffect(() => {
     if (hackathonId) {
-      getHackathonById(hackathonId)
-        .then((res) => {
-          if (res.success) {
-            setCurrentHackathon(res.data);
-          } else {
-            console.error("Failed to fetch hackathon details:", res.error);
-          }
-        })
-        .catch((error) => {
-          setCurrentHackathon({
-            id: "57f6fda0-e2f6-4f64-90f3-c2ce1bc4b424",
-            title: "Javafest",
-            description: "<p>Build an web application using Java.</p>",
-            requirements: "<p>We encourage to build AI application.</p>",
-            judgingCriteria: "<p>Creativity(50%) expert(50%</p>",
-            themes: ["Beginner Friendly", "Machine Learning/AI", "Web"],
-            thumbnail: null,
-            banner:
-              "https://res.cloudinary.com/aznath/image/upload/v1749327507/hackathons/hackathon-57f6fda0-e2f6-4f64-90f3-c2ce1bc4b424.png",
-            status: "upcoming",
-            maxTeamSize: 4,
-            minTeamSize: 1,
-            allowSoloParticipation: true,
-            organizeBy: "Therap",
-            createdBy: "e0554a25-89b7-4b63-9a48-59a07cfa57b2",
-            createdAt: "2025-06-02T18:43:41.005Z",
-            updatedAt: "2025-06-07T20:18:28.885Z",
-            registrationDeadline: "2025-06-13T18:00:00.000Z",
-            submissionDeadline: "2025-06-22T18:00:00.000Z",
-          });
-          console.error("Error fetching hackathon details:", error);
-        });
+      loadHackathonData();
+      if (user) {
+        checkRegistrationStatus();
+      }
     }
-  }, [hackathonId, getHackathonById, setCurrentHackathon]);
+  }, [hackathonId, user]);
 
-  console.log("Current Hackathon: ", hackathon);
+  const loadHackathonData = async () => {
+    try {
+      const res = await getHackathonById(hackathonId);
+      if (res.success) {
+        setCurrentHackathon(res.data);
+      } else {
+        console.error("Failed to fetch hackathon details:", res.error);
+      }
+    } catch (error) {
+      console.error("Error fetching hackathon details:", error);
+    }
+  };
+
+  const checkRegistrationStatus = async () => {
+    if (!user) return;
+
+    try {
+      const response = await apiClient.get(
+        `/hackathons/${hackathonId}/participants/me`
+      );
+      console.log("Registration status response:", response);
+      setRegistrationStatus(response.data);
+    } catch (error) {
+      // Not registered or other error
+      setRegistrationStatus(null);
+    }
+  };
+
+  const handleWithdrawRegistration = async () => {
+    setLoading(true);
+    try {
+      await apiClient.delete(
+        `/hackathon-registration/${hackathonId}/registration`
+      );
+      toast.success("Successfully withdrawn from hackathon");
+      setRegistrationStatus(null);
+      setWithdrawDialogOpen(false);
+    } catch (error) {
+      console.error("Withdrawal error:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to withdraw registration"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeRegistrationType = async (newType) => {
+    setLoading(true);
+    try {
+      await apiClient.put(
+        `/hackathon-registration/${hackathonId}/registration`,
+        {
+          participationType: newType,
+        }
+      );
+      toast.success(`Successfully changed to ${newType} participation`);
+      setRegistrationStatus({
+        ...registrationStatus,
+        participationType: newType,
+      });
+      setChangeTypeDialogOpen(false);
+    } catch (error) {
+      console.error("Update registration error:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to update registration"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
@@ -308,6 +371,12 @@ export default function HackathonDetails() {
                 <strong>Registration ends:</strong>
                 <br />
                 {formatDate(hackathon.registrationDeadline)}
+                {new Date() >
+                  new Date(hackathon.registrationDeadline || new Date()) && (
+                  <Badge variant="destructive" className="ml-2 text-xs">
+                    Closed
+                  </Badge>
+                )}
               </AlertDescription>
             </Alert>
             <Alert className="bg-white shadow-lg border-l-4 border-l-orange-500">
@@ -316,6 +385,12 @@ export default function HackathonDetails() {
                 <strong>Submission deadline:</strong>
                 <br />
                 {formatDate(hackathon.submissionDeadline)}
+                {new Date() >
+                  new Date(hackathon.submissionDeadline || new Date()) && (
+                  <Badge variant="destructive" className="ml-2 text-xs">
+                    Closed
+                  </Badge>
+                )}
               </AlertDescription>
             </Alert>
             <Alert className="bg-white shadow-lg border-l-4 border-l-green-500">
@@ -324,27 +399,370 @@ export default function HackathonDetails() {
                 <strong>Team size:</strong>
                 <br />
                 {hackathon.minTeamSize} - {hackathon.maxTeamSize} members
+                {registrationStatus && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    You: {registrationStatus.participationType}
+                  </Badge>
+                )}
               </AlertDescription>
             </Alert>
           </div>
 
+          {/* Registration Status Banner */}
+          {user && (
+            <div className="mb-6">
+              {registrationStatus ? (
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    <div className="flex items-center justify-between">
+                      <span>
+                        ✅ You're registered as a{" "}
+                        <strong>{registrationStatus.participationType}</strong>{" "}
+                        participant
+                        {registrationStatus.teamId && (
+                          <span>
+                            {" "}
+                            with team ID: {registrationStatus.teamId}
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-xs text-green-600">
+                        Joined on{" "}
+                        {new Date(
+                          registrationStatus.joinedAt || new Date()
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : new Date() <=
+                new Date(hackathon.registrationDeadline || new Date()) ? (
+                <Alert className="bg-blue-50 border-blue-200">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    🎯 You haven't registered yet. Registration is open until{" "}
+                    <strong>
+                      {new Date(
+                        hackathon.registrationDeadline
+                      ).toLocaleDateString()}
+                    </strong>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert className="bg-red-50 border-red-200">
+                  <Clock className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    ⏰ Registration has closed. This hackathon is no longer
+                    accepting new participants.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 justify-center mb-8">
-            <Link to={`/hackathons/${hackathon.id}/apply`}>
-              <Button size="lg" className="px-8">
-                Register Now
+          <div className="flex flex-col items-center gap-6 mb-8">
+            {user ? (
+              registrationStatus ? (
+                // User is registered - show registered status and options
+                <div className="w-full max-w-4xl">
+                  {/* Registration Status Card */}
+                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 mb-6">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-full">
+                            <CheckCircle className="w-6 h-6 text-green-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-green-800">
+                              Registration Confirmed
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge
+                                variant="secondary"
+                                className="bg-green-100 text-green-800"
+                              >
+                                {registrationStatus.participationType
+                                  ?.charAt(0)
+                                  .toUpperCase() +
+                                  registrationStatus.participationType?.slice(
+                                    1
+                                  )}{" "}
+                                Participant
+                              </Badge>
+                              {/* {registrationStatus.teamId && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-green-700 border-green-300"
+                                >
+                                  Team: {registrationStatus.teamId}
+                                </Badge>
+                              )} */}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm text-green-700 text-center md:text-right">
+                          <div>Registered on</div>
+                          <div className="font-medium">
+                            {new Date(
+                              registrationStatus.joinedAt || new Date()
+                            ).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Action Buttons Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Manage Registration */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="w-full h-12"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Manage Registration
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="center" className="w-56">
+                        {/* Change registration type if possible */}
+                        {new Date() <
+                          new Date(hackathon.registrationDeadline) && (
+                          <Dialog
+                            open={changeTypeDialogOpen}
+                            onOpenChange={setChangeTypeDialogOpen}
+                          >
+                            <DialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <Edit3 className="w-4 h-4 mr-2" />
+                                Change Participation Type
+                              </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Change Participation Type
+                                </DialogTitle>
+                                <DialogDescription>
+                                  You are currently registered as a{" "}
+                                  <strong>
+                                    {registrationStatus.participationType}
+                                  </strong>{" "}
+                                  participant. Would you like to change your
+                                  participation type?
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                {registrationStatus.participationType !==
+                                  "solo" &&
+                                  hackathon.allowSoloParticipation && (
+                                    <Button
+                                      className="w-full"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleChangeRegistrationType("solo")
+                                      }
+                                      disabled={loading}
+                                    >
+                                      {loading && (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      )}
+                                      <User className="w-4 h-4 mr-2" />
+                                      Switch to Solo Participation
+                                    </Button>
+                                  )}
+                                {registrationStatus.participationType !==
+                                  "team" && (
+                                  <Button
+                                    className="w-full"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleChangeRegistrationType("team")
+                                    }
+                                    disabled={loading}
+                                  >
+                                    {loading && (
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    )}
+                                    <Users className="w-4 h-4 mr-2" />
+                                    Switch to Team Participation
+                                  </Button>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+
+                        {/* Team management for team participants */}
+                        {registrationStatus.participationType === "team" && (
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to={`/hackathons/${hackathon.id}/teams/select`}
+                              >
+                                <Users className="w-4 h-4 mr-2" />
+                                Manage Team
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to={`/hackathons/${hackathon.id}/teams/browse`}
+                              >
+                                <Users className="w-4 h-4 mr-2" />
+                                Browse Teams
+                              </Link>
+                            </DropdownMenuItem>
+                          </>
+                        )}
+
+                        {/* Withdraw registration */}
+                        <Dialog
+                          open={withdrawDialogOpen}
+                          onOpenChange={setWithdrawDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <UserX className="w-4 h-4 mr-2" />
+                              Withdraw Registration
+                            </DropdownMenuItem>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Withdraw Registration</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to withdraw from this
+                                hackathon? This action cannot be undone and you
+                                may lose your team position.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant="outline"
+                                onClick={() => setWithdrawDialogOpen(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={handleWithdrawRegistration}
+                                disabled={loading}
+                              >
+                                {loading && (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Withdraw
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Submit Project Button */}
+                    {new Date() <=
+                      new Date(hackathon.submissionDeadline || new Date()) && (
+                      <Link
+                        to={`/hackathons/${hackathon.id}/submit`}
+                        className="w-full"
+                      >
+                        <Button size="lg" className="w-full h-12">
+                          <Trophy className="w-4 h-4 mr-2" />
+                          Submit Project
+                        </Button>
+                      </Link>
+                    )}
+
+                    {/* Team Management Buttons for Team Participants */}
+                    {registrationStatus.participationType === "team" && (
+                      <>
+                        <Link
+                          to={`/hackathons/${hackathon.id}/teams/${registrationStatus.teamId}`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full h-12"
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            My Team
+                          </Button>
+                        </Link>
+                        <Link
+                          to={`/hackathons/${hackathon.id}/teams/browse`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full h-12"
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Browse Teams
+                          </Button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                // User is not registered - show register button
+                <div className="w-full max-w-md">
+                  <Link
+                    to={`/hackathons/${hackathon.id}/apply`}
+                    className="w-full"
+                  >
+                    <Button size="lg" className="w-full px-8 py-3 text-lg h-12">
+                      Register Now
+                    </Button>
+                  </Link>
+                </div>
+              )
+            ) : (
+              // User is not logged in - show register button
+              <div className="w-full max-w-md">
+                <Link
+                  to={`/hackathons/${hackathon.id}/apply`}
+                  className="w-full"
+                >
+                  <Button size="lg" className="w-full px-8 py-3 text-lg h-12">
+                    Register Now
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Common buttons for all users */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center w-full max-w-2xl">
+              <Link
+                to={`/hackathons/${hackathon.id}/projects`}
+                className="w-full sm:w-auto"
+              >
+                <Button variant="outline" size="lg" className="w-full h-12">
+                  <Trophy className="w-4 h-4 mr-2" />
+                  View Projects
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleNativeShare}
+                className="w-full sm:w-auto h-12"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
               </Button>
-            </Link>
-            <Link to={`/hackathons/${hackathon.id}/projects`}>
-              <Button variant="outline" size="lg">
-                <Trophy className="w-4 h-4 mr-2" />
-                View Projects
-              </Button>
-            </Link>
-            <Button variant="outline" size="lg" onClick={handleNativeShare}>
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
-            </Button>
+            </div>
           </div>
 
           {/* Tabbed Content */}

@@ -42,6 +42,8 @@ const OptionsLayout = () => {
       );
       setRegistrationStatus(response.data);
     } catch (error) {
+      console.log("Error checking registration status:", error);
+
       setRegistrationStatus(null);
     }
   };
@@ -64,7 +66,7 @@ const OptionsLayout = () => {
       }
 
       // Register
-      await apiClient.post(`/hackathons/${hackathonId}/register`, {
+      await apiClient.post(`/hackathon-registration/${hackathonId}/register`, {
         participationType,
       });
 
@@ -263,14 +265,12 @@ const OptionsLayout = () => {
                 <span>Compete in team category</span>
               </div>
             </div>
-            <Button
-              className="w-full bg-green-600 hover:bg-green-700"
-              onClick={() => handleRegistration("team")}
-              disabled={loading}
-            >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Register as Team
-            </Button>
+            <Link to={`/hackathons/${hackathonId}/teams/select`}>
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Join Team Registration
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -296,11 +296,23 @@ const OptionsLayout = () => {
           <h3 className="font-semibold mb-2 text-blue-800">
             💡 About Team Formation
           </h3>
-          <p className="text-sm text-blue-700">
-            Don't have a team yet? No worries! You can register first and then
-            use our platform to find teammates or create your own team after
-            registration.
+          <p className="text-sm text-blue-700 mb-3">
+            Ready to collaborate? Choose from multiple ways to form your team:
           </p>
+          <div className="grid md:grid-cols-3 gap-3 text-sm text-blue-700">
+            <div>
+              <p className="font-medium">🚀 Create Team</p>
+              <p>Start your own team and invite members</p>
+            </div>
+            <div>
+              <p className="font-medium">🔍 Browse Teams</p>
+              <p>Join existing teams looking for members</p>
+            </div>
+            <div>
+              <p className="font-medium">🤝 Find Teammates</p>
+              <p>Connect with individual participants</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
