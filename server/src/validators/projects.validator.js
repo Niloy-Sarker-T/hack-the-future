@@ -41,7 +41,7 @@ export const createHackathonProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   hackathonId: z.string().uuid("Invalid hackathon ID"),
-  teamId: z.string().uuid("Invalid team ID").optional(),
+  teamId: z.string().uuid("Invalid team ID").optional().nullable(),
 });
 
 // ADD QUERY VALIDATION SCHEMAS

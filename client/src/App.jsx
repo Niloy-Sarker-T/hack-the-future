@@ -15,7 +15,7 @@ import EditHackathonPage from "./pages/hackathons/edit-hackathon";
 import HackathonShowcasePage from "./pages/hackathons/HackathonShowcasePage";
 import HackathonDetails from "./pages/HackathonDetails";
 import OptionsLayout from "./pages/hackathons/OptionsLayout"; // <-- Add this import
-import ProjectSubmissionPage from "./pages/hackathons/ProjectSubmissionPage";
+import ProjectSubmissionPage from "./pages/hackathons/HackathonProjectSubmissionPage";
 import ProjectManagementPage from "./pages/hackathons/ProjectManagementPage";
 import HackathonProjectsPage from "./pages/hackathons/HackathonProjectsPage";
 import TeamSelectionPage from "./pages/hackathons/TeamSelectionPage";
